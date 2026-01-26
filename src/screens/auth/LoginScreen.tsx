@@ -73,13 +73,14 @@ export default function LoginScreen({ navigation }) {
 
       {/* Primary Action */}
       <PrimaryButton
-        title={mode === "password" ? "Login" : "Send OTP"} onPress={() => {
-          navigation.navigate("Otp", {
-            phone: "+91 1234567890"
-          });
+        title={mode === "password" ? "Login" : "Send OTP"}
+        onPress={() => {
+          // 🔥 TEMP TEST LOGIN
+          navigation.replace("Admin");
         }}
         icon={mode === "password" ? "🔐" : "📲"}
       />
+
 
       {/* OR Divider */}
       <View style={styles.divider}>

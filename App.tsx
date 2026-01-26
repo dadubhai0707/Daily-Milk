@@ -1,25 +1,20 @@
 import React from "react";
-import { StatusBar } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import AuthNavigator from "./src/navigation/AuthNavigator";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import LoginScreen from "./src/screens/auth/LoginScreen";
+import AdminDashboard from "./src/screens/admin/Dashboard/AdminDashboard";
 
-// import AdminNavigator from "./navigation/AdminNavigator";
-// import SellerNavigator from "./navigation/SellerNavigator";
 
-const isLoggedIn = false; // MUST be false for testing
-const userRole: "admin" | "seller" = "admin";
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const renderNavigator = () => {
-    if (!isLoggedIn) return <AuthNavigator/>;
-    // if (userRole === "admin") return <AdminNavigator />;
-    // return <SellerNavigator />;
-  };
-
   return (
     <NavigationContainer>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      {renderNavigator()}
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* <Stack.Screen name="Login" component={LoginScreen} /> */}
+        <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

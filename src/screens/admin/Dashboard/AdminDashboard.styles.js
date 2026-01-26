@@ -151,6 +151,8 @@ export default StyleSheet.create({
         color: "#9aa3a3"
     },
 
+    
+
     /* MANAGE */
     manageHeader: {
         flexDirection: "row",
@@ -298,5 +300,33 @@ export default StyleSheet.create({
 
     tabActive: {
         color: "#1fadad"
-    }
+    },
+
+    bottomTab: {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  height: 72,
+  flexDirection: "row",
+  justifyContent: "space-around",
+  alignItems: "center",
+  backgroundColor: "rgba(255,255,255,0.95)",
+  borderTopWidth: 1,
+  borderTopColor: "#eef2f2"
+},
+
+tabItem: {
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 4
+},
+
+tabLabel: {
+  fontSize: 10,
+  fontWeight: "700",
+  textTransform: "uppercase",
+  letterSpacing: 0.5
+}
+
 });

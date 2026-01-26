@@ -7,6 +7,7 @@ import {
   TouchableOpacity
 } from "react-native";
 
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import StatCard from "./components/StatCard";
 import MenuCard from "./components/MenuCard";
@@ -31,14 +32,42 @@ export default function AdminDashboard() {
           </View>
 
           <View>
-            <Text style={styles.greeting}>Good Morning 👋</Text>
-            <Text style={styles.username}>Alex Rivera</Text>
+            <Text style={{
+              fontSize: 11,
+              fontWeight: "800",
+              color: "#9AA3A3",
+              letterSpacing: 1,
+              marginBottom: 2
+            }}>
+              GOOD MORNING 👋
+            </Text>
+
+            <Text style={{
+              fontSize: 18,
+              fontWeight: "800",
+              color: "#121717"
+            }}>
+              Alex Rivera
+            </Text>
+
           </View>
         </View>
 
         <TouchableOpacity style={styles.notifyBtn}>
-          <Text style={styles.notifyIcon}>🔔</Text>
-          <View style={styles.notifyDot} />
+          <View style={{ position: "relative" }}>
+            <Icon name="bell-outline" size={22} color="#121717" />
+            <View
+              style={{
+                position: "absolute",
+                top: 2,
+                right: 2,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: "red"
+              }}
+            />
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -107,7 +136,7 @@ export default function AdminDashboard() {
 
         </View>
       </ScrollView>
-  {/* FAB */}
+      {/* FAB */}
       <FabButton
         title="Add / Assign Milk"
         onPress={() => console.log("FAB pressed")}

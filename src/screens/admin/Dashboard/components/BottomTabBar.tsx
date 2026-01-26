@@ -3,22 +3,44 @@ import { View, Text, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import styles from "../AdminDashboard.styles";
 
+const TABS = [
+  { key: "Home", icon: "home-variant-outline", label: "Home" },
+  { key: "Analytics", icon: "chart-box-outline", label: "Analytics" },
+  { key: "Stock", icon: "cube-outline", label: "Stock" },
+  { key: "Profile", icon: "account-outline", label: "Profile" }
+];
+
 export default function BottomTabBar() {
-    const [active, setActive] = useState("Home");
+  const [active, setActive] = useState("Home");
 
-    const tabs = [
-        { key: "Home", icon: "🏠" },
-        { key: "Analytics", icon: "📈" },
-        { key: "Stock", icon: "📦" },
-        { key: "Profile", icon: "👤" }
-    ];
+  return (
+    <View style={styles.bottomTab}>
+      {TABS.map(tab => {
+        const isActive = active === tab.key;
 
-    return (
-        <View style={styles.bottomTab}>
-            <Icon name="home" size={22} color={active ? "#1fadad" : "#9aa3a3"} />
-            <Icon name="chart-box-outline" size={22} />
-            <Icon name="cube-outline" size={22} />
-            <Icon name="account-outline" size={22} />
-        </View>
-    );
+        return (
+          <TouchableOpacity
+            key={tab.key}
+            style={styles.tabItem}
+            activeOpacity={0.7}
+            onPress={() => setActive(tab.key)}
+          >
+            <Icon
+              name={tab.icon}
+              size={22}
+              color={isActive ? "#1fadad" : "#9aa3a3"}
+            />
+            <Text
+              style={[
+                styles.tabLabel,
+                { color: isActive ? "#1fadad" : "#9aa3a3" }
+              ]}
+            >
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
 }

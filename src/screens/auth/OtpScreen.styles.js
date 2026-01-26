@@ -99,7 +99,7 @@ export default StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: COLORS.primary + "10"
+    backgroundColor: "rgba(25,166,179,0.08)"
   },
   blobTop: {
     position: "absolute",
@@ -108,6 +108,6 @@ export default StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: COLORS.primary + "10"
+    backgroundColor: "rgba(25,166,179,0.08)"
   }
 });

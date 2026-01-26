@@ -35,5 +35,12 @@ export default StyleSheet.create({
   },
   outlineText: {
     color: "#111717"
-  }
+  },
+  disabled: {
+  opacity: 0.5
+},
+disabledText: {
+  opacity: 0.7
+}
+
 });

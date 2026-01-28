@@ -6,6 +6,8 @@ import {
   Image,
   TouchableOpacity
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -16,6 +18,10 @@ import BottomTabBar from "./components/BottomTabBar";
 import styles from "./AdminDashboard.styles";
 
 export default function AdminDashboard() {
+  const navigation = useNavigation();
+
+  console.log("NAV:", navigation);
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -139,7 +145,7 @@ export default function AdminDashboard() {
       {/* FAB */}
       <FabButton
         title="Add / Assign Milk"
-        onPress={() => console.log("FAB pressed")}
+        onPress={() => navigation.navigate("AssignMilk")}
       />
 
 

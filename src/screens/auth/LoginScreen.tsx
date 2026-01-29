@@ -5,16 +5,44 @@ import {
   TouchableOpacity,
   ScrollView
 } from "react-native";
-
+import Toast from "react-native-toast-message";
 import TextInput from "../../components/Input/TextInput";
 import PrimaryButton from "../../components/Button/PrimaryButton";
 import styles from "./LoginScreen.styles";
+import { useFormik } from "formik";
 
 export default function LoginScreen({ navigation }) {
   const [mode, setMode] = useState("password"); // "password" | "otp"
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
-
+  const [isLoading, setIsloading] = useState(false)
+  const LoginForm = useFormik({
+    initialValues: {
+      mobile: "",
+      password: "",
+    },
+    onSubmit: async (value, { resetForm }) => {
+      try {
+        setIsloading(true);
+        Toast.show({
+          type: 'success',
+          text1: 'LoggedIn',
+          // text2: res.message
+        });
+        await resetForm();
+        // await setIsloading(false);
+      } catch (err) {
+        console.log(err)
+        Toast.show({
+          type: 'error',
+          text1: 'Warn',
+          // text2: err
+        });
+      } finally {
+        setIsloading(false);
+      }
+    }
+  })
   return (
     <ScrollView
       contentContainerStyle={styles.container}

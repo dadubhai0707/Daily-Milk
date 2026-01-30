@@ -10,39 +10,60 @@ import TextInput from "../../components/Input/TextInput";
 import PrimaryButton from "../../components/Button/PrimaryButton";
 import styles from "./LoginScreen.styles";
 import { useFormik } from "formik";
+import AuthService from "../../services/authService/auth.service";
+import { setAuthData } from "../../utils/storage";
 
 export default function LoginScreen({ navigation }) {
   const [mode, setMode] = useState("password"); // "password" | "otp"
-  const [mobile, setMobile] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsloading] = useState(false)
   const LoginForm = useFormik({
     initialValues: {
       mobile: "",
-      password: "",
+      password: ""
     },
-    onSubmit: async (value, { resetForm }) => {
+    onSubmit: async (values, { resetForm }) => {
       try {
         setIsloading(true);
-        Toast.show({
-          type: 'success',
-          text1: 'LoggedIn',
-          // text2: res.message
+
+        const res = await AuthService.Login(values);
+
+        if (!res?.success) {
+          Toast.show({
+            type: "error",
+            text1: "Login Failed",
+            text2: res
+          });
+          return;
+        }
+
+        await setAuthData({
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+          user: res.data.user
         });
-        await resetForm();
-        // await setIsloading(false);
-      } catch (err) {
-        console.log(err)
+
         Toast.show({
-          type: 'error',
-          text1: 'Warn',
-          // text2: err
+          type: "success",
+          text1: "Login Successful 🎉"
+        });
+
+        resetForm();
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "User" }]
+        });
+
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Network error"
         });
       } finally {
         setIsloading(false);
       }
     }
-  })
+  });
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -75,8 +96,8 @@ export default function LoginScreen({ navigation }) {
         prefix="+91"
         placeholder="Enter 10 digit number"
         keyboardType="number-pad"
-        value={mobile}
-        onChangeText={setMobile}
+        value={LoginForm.values.mobile}
+        onChangeText={LoginForm.handleChange("mobile")}
       />
 
       {/* Password (only if password mode) */}
@@ -86,8 +107,8 @@ export default function LoginScreen({ navigation }) {
             label="Password"
             placeholder="••••••••"
             secureTextEntry
-            value={password}
-            onChangeText={setPassword}
+            value={LoginForm.values.password}
+            onChangeText={LoginForm.handleChange("password")}
           />
 
           <TouchableOpacity
@@ -101,11 +122,8 @@ export default function LoginScreen({ navigation }) {
 
       {/* Primary Action */}
       <PrimaryButton
-        title={mode === "password" ? "Login" : "Send OTP"}
-        onPress={() => {
-          // 🔥 TEMP TEST LOGIN
-          navigation.replace("Admin");
-        }}
+        title={mode === "password" ? isLoading ? "wait..." : "Login" : "Send OTP"}
+        onPress={LoginForm.handleSubmit}
         icon={mode === "password" ? "🔐" : "📲"}
       />
 

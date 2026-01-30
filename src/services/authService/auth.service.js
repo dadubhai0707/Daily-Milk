@@ -14,7 +14,7 @@ class authService {
             const res = await api.post("/auth/login", data);
             return res.data;
         } catch (error) {
-            return error.response?.data?.message || "Register failed"
+            return error.response?.data?.message || "Login failed"
         }
     }
 }

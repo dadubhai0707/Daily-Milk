@@ -272,7 +272,7 @@ export default StyleSheet.create({
     /* BOTTOM TAB */
     bottomTab: {
         position: "absolute",
-        bottom: 0,
+        bottom: 10,
         left: 0,
         right: 0,
         flexDirection: "row",

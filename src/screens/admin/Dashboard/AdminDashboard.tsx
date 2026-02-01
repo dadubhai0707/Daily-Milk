@@ -130,12 +130,13 @@ export default function AdminDashboard() {
         </View>
 
         <View style={styles.menuGrid}>
-          <MenuCard icon="office-building" label="Purchase" color="#EAF2FF" />
+          <MenuCard icon="office-building" label="Vendors" color="#EAF2FF"
+            onPress={() => navigation.navigate("VendorListScreen")} />
           <MenuCard icon="water" label="Milk" color="#E9FBF9" />
-          <MenuCard icon="check-circle-outline" label="Assign" color="#EEF0FF" />
+          <MenuCard icon="map-marker-outline" label="Address" color="#FFECEC" />
           <MenuCard icon="storefront-outline" label="Seller" color="#FFF4E8" />
           <MenuCard icon="account-group-outline" label="Customer" color="#EAF7EE" />
-          <MenuCard icon="map-marker-outline" label="Address" color="#FFECEC" />
+          <MenuCard icon="check-circle-outline" label="Assign" color="#EEF0FF" />
           <MenuCard icon="wallet-outline" label="Payment" color="#F1ECFF" />
           <MenuCard icon="chart-bar" label="Reports" color="#FFF1E6" />
           <MenuCard icon="tune" label="Settings" color="#F2F4F7" />

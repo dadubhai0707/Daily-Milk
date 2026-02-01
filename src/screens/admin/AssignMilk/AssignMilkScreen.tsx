@@ -196,7 +196,7 @@ export default function AssignMilkScreen({ navigation }) {
                 <DateTimePicker
                     value={date}
                     mode="date"
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    // display={Platform.OS === "ios" ? "spinner" : "default"}
                     onChange={(event, selectedDate) => {
                         setShowDatePicker(false);
                         if (selectedDate) setDate(selectedDate);

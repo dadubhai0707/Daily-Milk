@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import VendorContext from "./index";
-import StoreService from "../../../services/store/vendore.service";
+import StoreService from "../../../services/store/seller.service";
 import Toast from "react-native-toast-message";
-const VendorProvider = ({ children }) => {
-    const [vendors, setVendors] = useState([]);
+const SellerProvider = ({ children }) => {
+    const [seller, setSeller] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    /* =======================
-       FETCH ALL VENDORS
-    ======================= */
-    const fetchVendors = useCallback(async () => {
+    const fetchSeller = useCallback(async () => {
         try {
             setLoading(true);
-            const res = await StoreService.listVendor();
-            setVendors(res?.data || []);
+            const res = await StoreService.listSeller();
+            setSeller(res?.data || []);
         } catch (err) {
             Toast.show({
                 type: "error",
@@ -24,20 +21,18 @@ const VendorProvider = ({ children }) => {
         }
     }, []);
 
-    /* =======================
-       ADD / UPDATE VENDOR
-    ======================= */
+
     const handleSubmitVendor = async ({ data, isEdit, vendorId }) => {
         try {
             if (isEdit && vendorId) {
-                await StoreService.editVendor(vendorId, data);
+                await StoreService.editSeller(vendorId, data);
                 Toast.show({ type: "success", text1: "Vendor updated" });
             } else {
-                await StoreService.createVendor(data);
+                await StoreService.createSeller(data);
                 Toast.show({ type: "success", text1: "Vendor added" });
             }
 
-            fetchVendors();
+            fetchSeller();
             return true;
         } catch (err) {
             Toast.show({
@@ -48,14 +43,12 @@ const VendorProvider = ({ children }) => {
         }
     };
 
-    /* =======================
-       SOFT DELETE (optional)
-    ======================= */
+
     const deleteVendor = async (vendorId) => {
         try {
-            await StoreService.deleteVendor(vendorId);
+            await StoreService.deleteSeller(vendorId);
             Toast.show({ type: "success", text1: "Vendor deleted" });
-            fetchVendors();
+            fetchSeller();
         } catch (err) {
             Toast.show({
                 type: "error",
@@ -64,19 +57,17 @@ const VendorProvider = ({ children }) => {
         }
     };
 
-    /* =======================
-       AUTO FETCH ON MOUNT
-    ======================= */
+
     useEffect(() => {
-        fetchVendors();
-    }, [fetchVendors]);
+        fetchSeller();
+    }, [fetchSeller]);
 
     return (
         <VendorContext.Provider
             value={{
-                vendors,
+                seller,
                 loading,
-                fetchVendors,
+                fetchSeller,
                 handleSubmitVendor,
                 deleteVendor,
             }}
@@ -86,4 +77,4 @@ const VendorProvider = ({ children }) => {
     );
 };
 
-export default VendorProvider;
+export default SellerProvider;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import VendorContext from "./index";
-import StoreService from "../../../services/store/seller.service";
+import StoreService from "../../../services/store/customer.service";
 import Toast from "react-native-toast-message";
 const CustomerProvider = ({ children }) => {
     const [customer, setCustomer] = useState([]);
@@ -9,7 +9,7 @@ const CustomerProvider = ({ children }) => {
     const fetchCustomer = useCallback(async () => {
         try {
             setLoading(true);
-            const res = await StoreService.listSeller();
+            const res = await StoreService.listCustomer();
             setCustomer(res?.data || []);
         } catch (err) {
             Toast.show({
@@ -25,10 +25,10 @@ const CustomerProvider = ({ children }) => {
     const handleSubmitCustomer = async ({ data, isEdit, vendorId }) => {
         try {
             if (isEdit && vendorId) {
-                await StoreService.editSeller(vendorId, data);
+                await StoreService.editCustomer(vendorId, data);
                 Toast.show({ type: "success", text1: "Vendor updated" });
             } else {
-                await StoreService.createSeller(data);
+                await StoreService.createCustomer(data);
                 Toast.show({ type: "success", text1: "Vendor added" });
             }
 
@@ -46,7 +46,7 @@ const CustomerProvider = ({ children }) => {
 
     const deleteCustomer = async (vendorId) => {
         try {
-            await StoreService.deleteSeller(vendorId);
+            await StoreService.deleteCustomer(vendorId);
             Toast.show({ type: "success", text1: "Vendor deleted" });
             fetchCustomer();
         } catch (err) {

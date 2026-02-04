@@ -2,7 +2,7 @@ import React from "react";
 import { View, TextInput as RNInput, Text } from "react-native";
 import styles from "./TextInput.styles";
 
-export default function TextInput({ label, prefix, ...props }) {
+export default function TextInput({ label, prefix, error, ...props }) {
   return (
     <View style={styles.wrapper}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -15,6 +15,7 @@ export default function TextInput({ label, prefix, ...props }) {
           style={styles.input}
         />
       </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }

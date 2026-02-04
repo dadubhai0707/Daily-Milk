@@ -26,6 +26,12 @@ export default StyleSheet.create({
     shadowRadius: 16,
     elevation: 2
   },
+  errorText: {
+    color: "#EF4444",
+    fontSize: 12,
+    marginTop: 4,
+  },
+
   prefix: {
     fontWeight: "700",
     marginRight: 6

@@ -7,10 +7,16 @@ import AddressScreen from "../screens/admin/Address/AddressScreen";
 import SellerScreen from "../screens/admin/Seller/SellerScreen";
 import CustomerScreen from "../screens/admin/Customer/CustomerScreen";
 const Stack = createNativeStackNavigator();
+import AdminBottomTabs from "../screens/admin/Dashboard/components/BottomTabBar";
 
 export default function AdminNavigator() {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="AdminTabs"
+        component={AdminBottomTabs}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="AdminDashboard"
         component={AdminDashboard}

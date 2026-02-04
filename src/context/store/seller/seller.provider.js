@@ -22,10 +22,10 @@ const SellerProvider = ({ children }) => {
     }, []);
 
 
-    const handleSubmitVendor = async ({ data, isEdit, vendorId }) => {
+    const handleSubmitVendor = async ({ data, isEdit, sellerId }) => {
         try {
-            if (isEdit && vendorId) {
-                await StoreService.editSeller(vendorId, data);
+            if (isEdit && sellerId) {
+                await StoreService.editSeller(sellerId, data);
                 Toast.show({ type: "success", text1: "Vendor updated" });
             } else {
                 await StoreService.createSeller(data);
@@ -44,9 +44,9 @@ const SellerProvider = ({ children }) => {
     };
 
 
-    const deleteVendor = async (vendorId) => {
+    const deleteVendor = async (sellerId) => {
         try {
-            await StoreService.deleteSeller(vendorId);
+            await StoreService.deleteSeller(sellerId);
             Toast.show({ type: "success", text1: "Vendor deleted" });
             fetchSeller();
         } catch (err) {

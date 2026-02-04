@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,64 +8,62 @@ import {
   StatusBar,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import BottomTabBar from "../Dashboard/components/BottomTabBar";
 import VendorFormModal from "./VendorFormModal";
-import { styles } from "./VendoreCss"; // we'll update this too
+import { styles } from "./VendoreCss";
 import VendorProvider from "../../../context/store/vendore/vendore.provider";
 import VendorContext from "../../../context/store/vendore";
+import FabButton from "../Dashboard/components/FabButton";
 
-const TAB_HEIGHT = 80;
-const FAB_MARGIN = 16;
-const CONTENT_BOTTOM_PADDING = TAB_HEIGHT + 90;
 const VendorListContent = () => {
-  const { vendors, fetchVendors, handleSubmitVendor, } = useContext(VendorContext);
+  const {
+    vendors,
+    fetchVendors,
+    handleSubmitVendor,
+    deleteVendor,
+  } = useContext(VendorContext);
   const [search, setSearch] = useState("");
   const [editVendor, setEditVendor] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
-
+  useEffect(() => {
+    fetchVendors()
+  }, [])
   const filtered = vendors.filter(c =>
     `${c.name} ${c.phone} ${c.address}`.toLowerCase().includes(search.toLowerCase())
   );
 
-  const renderCustomer = ({ item }) => {
-    const isPending = item.status === "PENDING";
-    return (
-      <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.7}
-      // onPress → detail screen if needed
-      >
-        <View style={styles.cardTop}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
-            </View>
-            <View style={{ marginLeft: 12 }}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.phone}>{item.phone}</Text>
-            </View>
-          </View>
 
-          <View style={{ alignItems: "flex-end" }}>
-            <Text style={[styles.status, isPending ? styles.pending : styles.paid]}>
-              {isPending ? "PENDING" : "Active"}
-            </Text>
-          </View>
+  const renderVendor = ({ item }) => (
+    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+      <View style={styles.cardTop}>
+        <View>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.phone}>{item.phone}</Text>
         </View>
 
-        <View style={styles.addressRow}>
-          <Icon name="location-outline" size={16} color="#26A69A" />
-          <Text style={styles.address} numberOfLines={1}>{item.address}</Text>
+        {/* ACTIONS */}
+        <View style={{ flexDirection: "row", gap: 12 }}>
+          <TouchableOpacity
+            onPress={() => {
+              setEditVendor(item);
+              setFormOpen(true);
+            }}
+          >
+            <Icon name="create-outline" size={20} color="#2563EB" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => deleteVendor(item.id)}>
+            <Icon name="trash-outline" size={20} color="#EF4444" />
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-    );
-  };
+      </View>
+
+      <Text style={styles.address}>{item.address}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
-
-
       <View style={styles.searchContainer}>
         <Icon name="search-outline" size={20} color="#94A3B8" />
         <TextInput
@@ -77,35 +75,34 @@ const VendorListContent = () => {
         />
       </View>
 
-      <FlatList
+      {/* <FlatList
         data={filtered}
-        renderItem={renderCustomer}
+        renderItem={renderVendor}
         keyExtractor={item => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: CONTENT_BOTTOM_PADDING,   // ← this prevents list items going under tab
           paddingTop: 8,
         }}
+      /> */}
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item.id}
+        renderItem={renderVendor}
       />
-
-      <TouchableOpacity
-        style={[styles.fab, { bottom: TAB_HEIGHT + FAB_MARGIN }]}
+      <FabButton
+        title="Add Vendor"
         onPress={() => setFormOpen(true)}
-      >
-        <Icon name="add" size={24} color="#fff" />
-        <Text style={styles.fabText}>Add Customer</Text>
-      </TouchableOpacity>
-
+      />
       <VendorFormModal
         visible={formOpen}
         onClose={() => setFormOpen(false)}
         isEdit={!!editVendor}
-        onSubmit={() => {
-          handleSubmitVendor
+        onSubmit={(value) => {
+          handleSubmitVendor(value)
           setFormOpen(false);
         }}
       />
-      <BottomTabBar />
     </View>
   );
 };

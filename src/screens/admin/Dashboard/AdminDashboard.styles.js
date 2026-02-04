@@ -8,7 +8,6 @@ export default StyleSheet.create({
 
     scroll: {
         padding: 16,
-        paddingBottom: 220
     },
 
     /* HEADER */
@@ -246,7 +245,7 @@ export default StyleSheet.create({
     },
     fabContainer: {
         position: "absolute",
-        bottom: 90, // bottom tab upar
+        bottom: 10, 
         left: 0,
         right: 0,
         alignItems: "center",

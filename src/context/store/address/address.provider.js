@@ -21,10 +21,10 @@ const AddressProvider = ({ children }) => {
         }
     }, []);
 
-    const handleSubmitAddress = async ({ data, isEdit, vendorId }) => {
+    const handleSubmitAddress = async ({ data, isEdit, addressId }) => {
         try {
-            if (isEdit && vendorId) {
-                await StoreService.editAddress(vendorId, data);
+            if (isEdit && addressId) {
+                await StoreService.editAddress(addressId, data);
                 Toast.show({ type: "success", text1: "Address updated" });
             } else {
                 await StoreService.createAddress(data);
@@ -42,9 +42,9 @@ const AddressProvider = ({ children }) => {
         }
     };
 
-    const deleteAddress = async (vendorId) => {
+    const deleteAddress = async (addressId) => {
         try {
-            await StoreService.deleteAddress(vendorId);
+            await StoreService.deleteAddress(addressId);
             Toast.show({ type: "success", text1: "Address deleted" });
             fetchAddress();
         } catch (err) {

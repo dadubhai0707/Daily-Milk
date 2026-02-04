@@ -3,12 +3,18 @@ import {
     View,
 } from "react-native";
 import CustomerProvider from "../../../context/store/customer/customer.provider";
-import BottomTabBar from "../Dashboard/components/BottomTabBar";
+import FabButton from "../Dashboard/components/FabButton";
+import { useState } from "react";
 const CustomerList = () => {
+    const [formOpen, setFormOpen] = useState(false);
+
     return (
         <View>
             <Text>Customer Screen</Text>
-            <BottomTabBar />
+            <FabButton
+                title="Add Customer"
+                onPress={() => setFormOpen(true)}
+            />
         </View>
     );
 };

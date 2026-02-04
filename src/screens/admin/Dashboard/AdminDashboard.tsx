@@ -12,13 +12,11 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import StatCard from "./components/StatCard";
 import MenuCard from "./components/MenuCard";
 import FabButton from "./components/FabButton";
-import BottomTabBar from "./components/BottomTabBar";
 import styles from "./AdminDashboard.styles";
 
 export default function AdminDashboard() {
   const navigation = useNavigation();
 
-  console.log("NAV:", navigation);
 
   return (
     <View style={styles.container}>
@@ -146,13 +144,12 @@ export default function AdminDashboard() {
       </ScrollView>
       {/* FAB */}
       <FabButton
-        title="Add / Assign Milk"
+        title="Assign Milk"
         onPress={() => navigation.navigate("AssignMilk")}
       />
 
 
       {/* BOTTOM TAB */}
-      <BottomTabBar />
     </View>
   );
 }

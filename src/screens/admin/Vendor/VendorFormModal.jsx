@@ -14,13 +14,19 @@ import TextInput from "../../../components/Input/TextInput";
 import { formStyles } from "./VendoreCss"
 import * as Yup from "yup";
 import { useFormik } from "formik";
-const vendorValidation = Yup.object({
-  name: Yup.string().required("Vendor name is required"),
+const vendorValidation = Yup.object().shape({
+  name: Yup.string()
+    .trim()
+    .required("Vendor name is required"),
+
   mobile: Yup.string()
-    .matches(/^[0-9]{10}$/, "Enter valid 10 digit number")
+    .matches(/^[0-9]{10}$/, "Enter valid 10 digit mobile number")
     .required("Mobile number is required"),
-  address: Yup.string(),
+
+  address: Yup.string()
+    .min(5, "Address is too short"),
 });
+
 const VendorFormModal = ({
   visible,
   onClose,
@@ -36,7 +42,12 @@ const VendorFormModal = ({
     validationSchema: vendorValidation,
     enableReinitialize: true,
     onSubmit: (values) => {
-      onSubmit(values, isEdit);
+      console.log(values)
+      onSubmit({
+        data: values,
+        isEdit: !!isEdit,
+        vendorId: isEdit?.id || null,
+      });
     },
   });
   return (
@@ -70,6 +81,7 @@ const VendorFormModal = ({
               placeholder="e.g. Ramesh Bhai"
               value={formik.values.name}
               onChangeText={formik.handleChange("name")}
+              onBlur={() => formik.setFieldTouched("name")}
               error={formik.touched.name && formik.errors.name}
             />
 
@@ -81,8 +93,10 @@ const VendorFormModal = ({
               maxLength={10}
               value={formik.values.mobile}
               onChangeText={formik.handleChange("mobile")}
+              onBlur={() => formik.setFieldTouched("mobile")}
               error={formik.touched.mobile && formik.errors.mobile}
             />
+
 
             {/* ADDRESS */}
             <TextInput
@@ -91,7 +105,10 @@ const VendorFormModal = ({
               numberOfLines={4}
               value={formik.values.address}
               onChangeText={formik.handleChange("address")}
+              onBlur={() => formik.setFieldTouched("address")}
+              error={formik.touched.address && formik.errors.address}
             />
+
           </ScrollView>
 
           <View style={formStyles.footer}>

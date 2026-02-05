@@ -21,6 +21,7 @@ export const styles = StyleSheet.create({
     gap: 12,
     alignItems: "center",
     marginBottom: 14,
+    marginTop:14,
   },
 
   vendorAvatar: {

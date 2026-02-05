@@ -1,16 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PurchaseContext from "./index";
-import PurchaseService from "../../../services/store/purchase.service";
+import PurchaseService from "../../../../services/store/purchase.service";
 import Toast from "react-native-toast-message";
 
-const PurchaseProvider = ({ children }) => {
+export default function PurchaseProvider({ children }) {
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchPurchase = useCallback(async () => {
+  // ✅ GET ALL PURCHASES
+  const fetchPurchases = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await PurchaseService.listPurchase();
+      const res = await PurchaseService.listPurchases();
       setPurchases(res?.data || []);
     } catch (err) {
       Toast.show({
@@ -22,6 +23,7 @@ const PurchaseProvider = ({ children }) => {
     }
   }, []);
 
+  // ✅ ADD PURCHASE
   const handleSubmitPurchase = async ({ data, isEdit, purchaseId }) => {
     try {
       if (isEdit && purchaseId) {
@@ -32,7 +34,7 @@ const PurchaseProvider = ({ children }) => {
         Toast.show({ type: "success", text1: "Purchase added" });
       }
 
-      fetchPurchase();
+      fetchPurchases();
       return true;
     } catch (err) {
       Toast.show({
@@ -43,36 +45,55 @@ const PurchaseProvider = ({ children }) => {
     }
   };
 
+  // ✅ DELETE PURCHASE
   const deletePurchase = async (purchaseId) => {
     try {
       await PurchaseService.deletePurchase(purchaseId);
       Toast.show({ type: "success", text1: "Purchase deleted" });
-      fetchPurchase();
+      fetchPurchases();
     } catch (err) {
       Toast.show({
         type: "error",
-        text1: err?.message || "Delete failed",
+        text1: err?.message || "Failed to delete purchase",
       });
     }
   };
 
+
+
+  const fetchVendorPurchases = useCallback(async (vendorId) => {
+    try {
+      setLoading(true);
+      const res = await PurchaseService.listVendorPurchases(vendorId);
+      setPurchases(res?.data || []);
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: err?.message || "Failed to fetch vendor purchases",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+
+
   useEffect(() => {
-    fetchPurchase();
-  }, [fetchPurchase]);
+    fetchPurchases();
+  }, [fetchPurchases]);
 
   return (
     <PurchaseContext.Provider
       value={{
         purchases,
         loading,
-        fetchPurchase,
+        fetchPurchases, // ✅ VERY IMPORTANT
         handleSubmitPurchase,
         deletePurchase,
+        fetchVendorPurchases
       }}
     >
       {children}
     </PurchaseContext.Provider>
   );
-};
-
-export default PurchaseProvider;
+}

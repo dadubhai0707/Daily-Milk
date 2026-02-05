@@ -47,7 +47,8 @@ const VendorListContent = ({ navigation }) => {
         {/* ACTIONS */}
         <View style={{ flexDirection: "row", gap: 12 }}>
           <TouchableOpacity
-            onPress={() => {
+            onPress={(e) => {
+              e.stopPropagation();
               setEditVendor(item);
               setFormOpen(true);
             }}
@@ -55,7 +56,10 @@ const VendorListContent = ({ navigation }) => {
             <Icon name="create-outline" size={20} color="#2563EB" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => deleteVendor(item.id)}>
+          <TouchableOpacity onPress={(e) => {
+            e.stopPropagation();
+            deleteVendor(item._id);
+          }}>
             <Icon name="trash-outline" size={20} color="#EF4444" />
           </TouchableOpacity>
         </View>
@@ -91,9 +95,10 @@ const VendorListContent = ({ navigation }) => {
       /> */}
       <FlatList
         data={filtered}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}   // ✅ change
         renderItem={renderVendor}
       />
+
       <FabButton
         title="Add Vendor"
         onPress={() => setFormOpen(true)}
@@ -116,7 +121,7 @@ const VendorListContent = ({ navigation }) => {
 export default function VendorListScreen({ navigation }) {
   return (
     <VendorProvider>
-      <VendorListContent  navigation={navigation} />
+      <VendorListContent navigation={navigation} />
     </VendorProvider>
   );
 }

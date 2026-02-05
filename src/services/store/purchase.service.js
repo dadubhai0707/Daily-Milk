@@ -36,6 +36,14 @@ class purchaseService {
       throw error.response?.data || { message: "Failed to delete purchase" };
     }
   }
+  async listVendorPurchases(vendorId) {
+    try {
+      const res = await api.get(`/store/milk-procurement/vendor/${vendorId}`);
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Failed to fetch vendor purchases" };
+    }
+  }
 }
 
 const PurchaseService = new purchaseService();

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import AddressContext from "./index";
 import AddressService from "../../../services/store/address.service";
-import { toast } from "react-toastify";
+import Toast from "react-native-toast-message";
+
+
 
 const AddressProvider = ({ children }) => {
   const [address, setAddress] = useState([]);
@@ -16,7 +18,7 @@ const AddressProvider = ({ children }) => {
       const res = await AddressService.listAddress();
       setAddress(res?.data || []);
     } catch (err) {
-      toast.error(err?.message || "Failed to fetch addresses");
+      Toast.error(err?.message || "Failed to fetch addresses");
     } finally {
       setLoading(false);
     }
@@ -31,16 +33,16 @@ const AddressProvider = ({ children }) => {
 
       if (isEdit && addressId) {
         await AddressService.editAddress(addressId, data);
-        toast.success("Address updated ✅");
+        Toast.success("Address updated ✅");
       } else {
         await AddressService.createAddress(data);
-        toast.success("Address added ✅");
+        Toast.success("Address added ✅");
       }
 
       fetchAddress();
       return true;
     } catch (err) {
-      toast.error(err?.message || "Address action failed");
+      Toast.error(err?.message || "Address action failed");
       return false;
     } finally {
       setLoading(false);
@@ -54,10 +56,10 @@ const AddressProvider = ({ children }) => {
     try {
       setLoading(true);
       await AddressService.deleteAddress(addressId);
-      toast.success("Address deleted ❌");
+      Toast.success("Address deleted ❌");
       fetchAddress();
     } catch (err) {
-      toast.error(err?.message || "Failed to delete address");
+      Toast.error(err?.message || "Failed to delete address");
     } finally {
       setLoading(false);
     }

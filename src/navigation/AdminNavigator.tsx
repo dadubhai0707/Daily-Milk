@@ -8,8 +8,8 @@ import SellerScreen from "../screens/admin/Seller/SellerScreen";
 import CustomerScreen from "../screens/admin/Customer/CustomerScreen";
 const Stack = createNativeStackNavigator();
 import AdminBottomTabs from "../screens/admin/Dashboard/components/BottomTabBar";
-import VendorPurchaseDetailScreen from "../screens/admin/Vendor/VendorPurchaseDetailScreen";
 import NewPurchaseScreen from "../screens/admin/Vendor/PurchaseHistory/NewPurchaseScreen";
+import VendorPurchaseDetailWrapper from "../screens/admin/Vendor/VendorPurchaseDetailScreen";
 
 
 
@@ -44,7 +44,7 @@ export default function AdminNavigator() {
         name="SellerScreen"
         component={SellerScreen}
         options={{
-          title: "Address",
+          title: "Seller",
         }}
       />
       <Stack.Screen
@@ -58,15 +58,13 @@ export default function AdminNavigator() {
         name="CustomerScreen"
         component={CustomerScreen}
         options={{
-          title: "Address",
+          title: "Customer",
         }}
       />
       <Stack.Screen
         name="VendorPurchaseDetail"
-        component={VendorPurchaseDetailScreen}
-        options={{
-          title: "VendorDetail",
-        }}
+        component={VendorPurchaseDetailWrapper}
+        options={{ title: "VendorDetail" }}
       />
       <Stack.Screen
         name="NewPurchase"

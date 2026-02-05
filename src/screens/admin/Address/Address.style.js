@@ -12,7 +12,6 @@ export const styles = StyleSheet.create({
     header: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
         paddingVertical: 16,
     },
 
@@ -40,6 +39,7 @@ export const styles = StyleSheet.create({
         height: 48,
         paddingHorizontal: 12,
         marginBottom: 16,
+        marginTop: 16,
     },
 
     searchInput: {

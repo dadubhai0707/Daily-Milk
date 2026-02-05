@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     gap: 12,
     alignItems: "center",
     marginBottom: 14,
-    marginTop:14,
+    marginTop: 14,
   },
 
   vendorAvatar: {
@@ -84,4 +84,5 @@ export const styles = StyleSheet.create({
   },
 
   purchaseText: { color: "#fff", fontSize: 16, fontWeight: "900" },
+
 });

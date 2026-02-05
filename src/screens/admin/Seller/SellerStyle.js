@@ -6,7 +6,16 @@ export const styles = StyleSheet.create({
         backgroundColor: "#f2f2f2",
         paddingHorizontal: 16,
     },
+    vendorAvatar: {
+        width: 52,
+        height: 52,
+        borderRadius: 50,
+        backgroundColor: "#E9F3F2",
+        alignItems: "center",
+        justifyContent: "center",
+    },
 
+    vendorAvatarText: { fontSize: 20, fontWeight: "900", color: "#0F766E" },
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -109,7 +118,7 @@ export const styles = StyleSheet.create({
         height: 12,
         borderRadius: 6,
         position: "absolute",
-        bottom: -2,
+        bottom: 4,
         right: -2,
         borderWidth: 2,
         borderColor: "#fff",
@@ -151,6 +160,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 6,
+        height:22,
     },
 
     inactiveBadge: {
@@ -204,6 +214,24 @@ export const styles = StyleSheet.create({
         fontWeight: "700",
         color: "#4D994D",
     },
+    redDot: {
+        backgroundColor: "#EF4444",
+    },
+
+
+
+    inactiveBadgeText: {
+        color: "#b91c1c",
+    },
+
+    activeBadge: {
+        backgroundColor: "#dcfce7",
+    },
+
+    activeBadgeText: {
+        color: "#166534",
+    },
+
 });
 
 

@@ -4,6 +4,7 @@ class sellerService {
   async listSeller() {
     try {
       const res = await api.get("/store/seller");
+      console.log(res)
       return res.data;
     } catch (error) {
       throw error.response?.data || { message: "Failed To Get seller" };

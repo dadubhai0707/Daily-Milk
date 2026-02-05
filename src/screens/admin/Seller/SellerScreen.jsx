@@ -1,12 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    TextInput,
-    TouchableOpacity,
-    SafeAreaView,
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { styles } from "./SellerStyle";
@@ -15,183 +14,161 @@ import SellerContext from "../../../context/store/seller";
 import FabButton from "../Dashboard/components/FabButton";
 import SellerFormModal from "./SellerFormModal";
 
-/* =========================
-   INNER LIST (USES CONTEXT)
-========================= */
 const SellerList = () => {
-    const {
-        seller = [],
-        loading,
-        fetchSeller,
-        handleSubmitSeller,
-        deleteVendor,
-    } = useContext(SellerContext);
-    const [search, setSearch] = useState("");
-    const [formOpen, setFormOpen] = useState(false);
+  const { seller = [], loading, handleSubmitSeller, fetchSeller } =
+    useContext(SellerContext);
 
-    const filtered = seller.filter((s) =>
-        `${s.name} ${s.phone}`.toLowerCase().includes(search.toLowerCase())
-    );
+  const [search, setSearch] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
 
-    const renderSeller = ({ item }) => {
-        const isPending = item.balance > 0;
-        const isInactive = item.status === "INACTIVE";
+  const filtered = useMemo(() => {
+    return seller.filter((s) => {
+      const name = s?.userId?.name || "";
+      const phone = s?.userId?.mobile || "";
+      return `${name} ${phone}`.toLowerCase().includes(search.toLowerCase());
+    });
+  }, [seller, search]);
 
-        return (
-            <View
-                style={[
-                    styles.card,
-                    isInactive && styles.inactiveCard,
-                ]}
-            >
-                {/* AVATAR */}
-                <View style={styles.avatarWrap}>
-                    <View
-                        style={[
-                            styles.avatar,
-                            isPending
-                                ? styles.pendingBorder
-                                : styles.successBorder,
-                        ]}
-                    >
-                        <Text style={styles.avatarText}>
-                            {item.name.charAt(0)}
-                        </Text>
-                    </View>
-                    <View
-                        style={[
-                            styles.statusDot,
-                            isInactive
-                                ? styles.grayDot
-                                : styles.greenDot,
-                        ]}
-                    />
-                </View>
+  const renderSeller = ({ item }) => {
+    const name = item?.userId?.name || "Unknown";
+    const phone = item?.userId?.mobile || "-";
 
-                {/* CONTENT */}
-                <View style={{ flex: 1 }}>
-                    <View style={styles.rowBetween}>
-                        <View>
-                            <Text
-                                style={[
-                                    styles.name,
-                                    isInactive && styles.inactiveText,
-                                ]}
-                            >
-                                {item.name}
-                            </Text>
-                            <Text style={styles.meta}>
-                                {item.block} • #{item.code}
-                            </Text>
-                        </View>
-
-                        <View
-                            style={[
-                                styles.badge,
-                                isInactive && styles.inactiveBadge,
-                            ]}
-                        >
-                            <Text style={styles.badgeText}>
-                                {item.status}
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.footerRow}>
-                        <View style={styles.phoneRow}>
-                            <Icon name="call-outline" size={14} color="#6b7280" />
-                            <Text style={styles.phone}>{item.phone}</Text>
-                        </View>
-
-                        {isPending ? (
-                            <View style={{ alignItems: "flex-end" }}>
-                                <Text style={styles.pendingText}>PENDING</Text>
-                                <Text style={styles.amount}>₹{item.balance}</Text>
-                            </View>
-                        ) : (
-                            <View style={styles.clearedRow}>
-                                <Icon
-                                    name="checkmark-circle"
-                                    size={18}
-                                    color="#4D994D"
-                                />
-                                <Text style={styles.clearedText}>Cleared</Text>
-                            </View>
-                        )}
-                    </View>
-                </View>
-            </View>
-        );
-    };
+    const isActive = item?.isActive === true;
 
     return (
-        <SafeAreaView style={styles.container}>
-            {/* HEADER */}
-            <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                    <View style={styles.storeIcon}>
-                        <Icon name="storefront" size={20} color="#12a19c" />
-                    </View>
-                    <Text style={styles.headerTitle}>Sellers</Text>
-                </View>
+      <View style={[styles.card, !isActive && styles.inactiveCard]}>
+        {/* AVATAR */}
+        <View style={styles.avatarWrap}>
+          <View style={styles.vendorAvatar}>
+            <Text style={styles.vendorAvatarText}>{name.charAt(0)}</Text>
+          </View>
 
-                <TouchableOpacity style={styles.menuBtn}>
-                    <Icon name="ellipsis-vertical" size={18} />
-                </TouchableOpacity>
+          {/* ✅ GREEN if active, RED if inactive */}
+          <View
+            style={[
+              styles.statusDot,
+              isActive ? styles.greenDot : styles.redDot,
+            ]}
+          />
+        </View>
+
+        {/* CONTENT */}
+        <View style={{ flex: 1 }}>
+          <View style={styles.rowBetween}>
+            <View>
+              <Text style={[styles.name, !isActive && styles.inactiveText]}>
+                {name}
+              </Text>
+
+              <Text style={styles.meta}>
+                Role: {item?.userId?.role || "-"}
+              </Text>
             </View>
 
-            {/* SEARCH */}
-            <View style={styles.searchBox}>
-                <Icon name="search-outline" size={18} color="#9ca3af" />
-                <TextInput
-                    placeholder="Search sellers by name or number"
-                    placeholderTextColor="#9ca3af"
-                    style={styles.searchInput}
-                    value={search}
-                    onChangeText={setSearch}
-                />
+            {/* ✅ badge green/red */}
+            <View
+              style={[
+                styles.badge,
+                isActive ? styles.activeBadge : styles.inactiveBadge,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.badgeText,
+                  isActive ? styles.activeBadgeText : styles.inactiveBadgeText,
+                ]}
+              >
+                {isActive ? "ACTIVE" : "INACTIVE"}
+              </Text>
             </View>
+          </View>
 
-            {/* LIST */}
-            <FlatList
-                data={filtered}
-                keyExtractor={(item) => item.id}
-                renderItem={renderSeller}
-                contentContainerStyle={{ paddingBottom: 140 }}
-                showsVerticalScrollIndicator={false}
-            />
-
-            {/* FAB */}
-            <FabButton
-                title="Add Seller"
-                onPress={() => setFormOpen(true)}
-            />
-            <SellerFormModal
-                visible={formOpen}
-                onClose={() => setFormOpen(false)}
-                onSubmit={async (data) => {
-                    await handleSubmitSeller({
-                        data,
-                        isEdit: false,
-                        sellerId: null,
-                    });
-
-                    setFormOpen(false);
-                }}
-            />
-
-        </SafeAreaView>
+          <View style={styles.footerRow}>
+            <View style={styles.phoneRow}>
+              <Icon name="call-outline" size={14} color="#6b7280" />
+              <Text style={styles.phone}>{phone}</Text>
+            </View>
+          </View>
+        </View>
+      </View>
     );
+  };
+
+  const NoSeller = () => (
+    <View style={{ paddingVertical: 40, alignItems: "center" }}>
+      <Text style={{ fontSize: 16, fontWeight: "600", color: "#64748b" }}>
+        No Seller Found
+      </Text>
+
+      <TouchableOpacity style={{ marginTop: 10 }} onPress={fetchSeller}>
+        <Text style={{ color: "#12a19c", fontWeight: "700" }}>Reload</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.storeIcon}>
+            <Icon name="storefront" size={20} color="#12a19c" />
+          </View>
+          <Text style={styles.headerTitle}>Sellers</Text>
+        </View>
+
+        <TouchableOpacity style={styles.menuBtn} onPress={fetchSeller}>
+          <Icon name="reload" size={18} />
+        </TouchableOpacity>
+      </View>
+
+      {/* SEARCH */}
+      <View style={styles.searchBox}>
+        <Icon name="search-outline" size={18} color="#9ca3af" />
+        <TextInput
+          placeholder="Search sellers by name or number"
+          placeholderTextColor="#9ca3af"
+          style={styles.searchInput}
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
+
+      {/* LIST */}
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item?._id}
+        renderItem={renderSeller}
+        contentContainerStyle={{ paddingBottom: 140 }}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={!loading ? <NoSeller /> : null}
+        refreshing={loading}
+        onRefresh={fetchSeller}
+      />
+
+      {/* FAB */}
+      <FabButton title="Add Seller" onPress={() => setFormOpen(true)} />
+
+      <SellerFormModal
+        visible={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSubmit={async (data) => {
+          await handleSubmitSeller({
+            data,
+            isEdit: false,
+            sellerId: null,
+          });
+          setFormOpen(false);
+        }}
+      />
+    </SafeAreaView>
+  );
 };
 
-/* =========================
-   PROVIDER WRAPPER
-========================= */
 export default function SellerScreen() {
-    return (
-        <SellerProvider>
-            <SellerList />
-        </SellerProvider>
-    );
+  return (
+    <SellerProvider>
+      <SellerList />
+    </SellerProvider>
+  );
 }
-

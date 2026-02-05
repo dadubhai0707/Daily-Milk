@@ -79,15 +79,7 @@ const AddressListContext = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn}>
-          <Icon name="arrow-back" size={18} />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Addresses</Text>
-
-        <Icon name="filter" size={22} color="#19a6b3" />
-      </View>
+     
 
       {/* SEARCH */}
       <View style={styles.searchBox}>

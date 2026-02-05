@@ -1,78 +1,85 @@
 import React, { useState, useEffect, useCallback } from "react";
-import VendorContext from "./index";
-import StoreService from "../../../services/store/address.service";
-import Toast from "react-native-toast-message";
+import AddressContext from "./index";
+import AddressService from "../../../services/store/address.service";
+import { toast } from "react-toastify";
+
 const AddressProvider = ({ children }) => {
-    const [address, setAddress] = useState([]);
-    const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const fetchAddress = useCallback(async () => {
-        try {
-            setLoading(true);
-            const res = await StoreService.listAddress();
-            setAddress(res?.data || []);
-        } catch (err) {
-            Toast.show({
-                type: "error",
-                text1: err?.message || "Failed to fetch vendors",
-            });
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  /* =======================
+        FETCH ADDRESSES
+  ======================= */
+  const fetchAddress = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await AddressService.listAddress();
+      setAddress(res?.data || []);
+    } catch (err) {
+      toast.error(err?.message || "Failed to fetch addresses");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    const handleSubmitAddress = async ({ data, isEdit, addressId }) => {
-        try {
-            if (isEdit && addressId) {
-                await StoreService.editAddress(addressId, data);
-                Toast.show({ type: "success", text1: "Address updated" });
-            } else {
-                await StoreService.createAddress(data);
-                Toast.show({ type: "success", text1: "Address added" });
-            }
+  /* =======================
+        ADD / UPDATE
+  ======================= */
+  const handleSubmitAddress = async ({ data, isEdit, addressId }) => {
+    try {
+      setLoading(true);
 
-            fetchAddress();
-            return true;
-        } catch (err) {
-            Toast.show({
-                type: "error",
-                text1: err?.message || "Address action failed",
-            });
-            return false;
-        }
-    };
+      if (isEdit && addressId) {
+        await AddressService.editAddress(addressId, data);
+        toast.success("Address updated ✅");
+      } else {
+        await AddressService.createAddress(data);
+        toast.success("Address added ✅");
+      }
 
-    const deleteAddress = async (addressId) => {
-        try {
-            await StoreService.deleteAddress(addressId);
-            Toast.show({ type: "success", text1: "Address deleted" });
-            fetchAddress();
-        } catch (err) {
-            Toast.show({
-                type: "error",
-                text1: err?.message || "Failed to delete Address",
-            });
-        }
-    };
+      fetchAddress();
+      return true;
+    } catch (err) {
+      toast.error(err?.message || "Address action failed");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  /* =======================
+        DELETE (SOFT)
+  ======================= */
+  const deleteAddress = async (addressId) => {
+    try {
+      setLoading(true);
+      await AddressService.deleteAddress(addressId);
+      toast.success("Address deleted ❌");
+      fetchAddress();
+    } catch (err) {
+      toast.error(err?.message || "Failed to delete address");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        fetchAddress();
-    }, [fetchAddress]);
+  useEffect(() => {
+    fetchAddress();
+  }, [fetchAddress]);
 
-    return (
-        <VendorContext.Provider
-            value={{
-                address,
-                loading,
-                fetchAddress,
-                handleSubmitAddress,
-                deleteAddress,
-            }}
-        >
-            {children}
-        </VendorContext.Provider>
-    );
+  return (
+    <AddressContext.Provider
+      value={{
+        address,
+        loading,
+        fetchAddress,
+        handleSubmitAddress,
+        deleteAddress,
+      }}
+    >
+      {children}
+    </AddressContext.Provider>
+  );
 };
 
 export default AddressProvider;

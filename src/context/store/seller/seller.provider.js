@@ -1,80 +1,80 @@
 import { useState, useEffect, useCallback } from "react";
-import VendorContext from "./index";
-import StoreService from "../../../services/store/seller.service";
+import SellerContext from "./index";
+import SellerService from "../../../services/store/seller.service";
 import Toast from "react-native-toast-message";
+
 const SellerProvider = ({ children }) => {
-    const [seller, setSeller] = useState([]);
-    const [loading, setLoading] = useState(false);
+  const [seller, setSeller] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const fetchSeller = useCallback(async () => {
-        try {
-            setLoading(true);
-            const res = await StoreService.listSeller();
-            setSeller(res?.data || []);
-        } catch (err) {
-            Toast.show({
-                type: "error",
-                text1: err?.message || "Failed to fetch vendors",
-            });
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  const fetchSeller = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await SellerService.listSeller();
+      setSeller(res?.data || []);
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: err?.message || "Failed to fetch sellers",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  // ✅ Create / Update Seller
+  const handleSubmitSeller = async ({ data, isEdit, sellerId }) => {
+    try {
+      if (isEdit && sellerId) {
+        await SellerService.editSeller(sellerId, data);
+        Toast.show({ type: "success", text1: "Seller updated" });
+      } else {
+        await SellerService.createSeller(data);
+        Toast.show({ type: "success", text1: "Seller added" });
+      }
 
-    const handleSubmitVendor = async ({ data, isEdit, sellerId }) => {
-        try {
-            if (isEdit && sellerId) {
-                await StoreService.editSeller(sellerId, data);
-                Toast.show({ type: "success", text1: "Vendor updated" });
-            } else {
-                await StoreService.createSeller(data);
-                Toast.show({ type: "success", text1: "Vendor added" });
-            }
+      fetchSeller();
+      return true;
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: err?.message || "Seller action failed",
+      });
+      return false;
+    }
+  };
 
-            fetchSeller();
-            return true;
-        } catch (err) {
-            Toast.show({
-                type: "error",
-                text1: err?.message || "Vendor action failed",
-            });
-            return false;
-        }
-    };
+  // ✅ Delete seller
+  const deleteSeller = async (sellerId) => {
+    try {
+      await SellerService.deleteSeller(sellerId);
+      Toast.show({ type: "success", text1: "Seller deleted" });
+      fetchSeller();
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: err?.message || "Failed to delete seller",
+      });
+    }
+  };
 
+  useEffect(() => {
+    fetchSeller();
+  }, [fetchSeller]);
 
-    const deleteVendor = async (sellerId) => {
-        try {
-            await StoreService.deleteSeller(sellerId);
-            Toast.show({ type: "success", text1: "Vendor deleted" });
-            fetchSeller();
-        } catch (err) {
-            Toast.show({
-                type: "error",
-                text1: err?.message || "Failed to delete vendor",
-            });
-        }
-    };
-
-
-    useEffect(() => {
-        fetchSeller();
-    }, [fetchSeller]);
-
-    return (
-        <VendorContext.Provider
-            value={{
-                seller,
-                loading,
-                fetchSeller,
-                handleSubmitVendor,
-                deleteVendor,
-            }}
-        >
-            {children}
-        </VendorContext.Provider>
-    );
+  return (
+    <SellerContext.Provider
+      value={{
+        seller,
+        loading,
+        fetchSeller,
+        handleSubmitSeller,
+        deleteSeller,
+      }}
+    >
+      {children}
+    </SellerContext.Provider>
+  );
 };
 
 export default SellerProvider;

@@ -19,13 +19,13 @@ import { formStyle } from "./customerStyle"
    VALIDATION
 ======================= */
 const customerValidation = Yup.object().shape({
-    name: Yup.string().required("Customer name is required"),
-    mobile: Yup.string()
-        .matches(/^[0-9]{10}$/, "Enter valid 10 digit number")
-        .required("Mobile number is required"),
-    address: Yup.string().required("Address is required"),
-    quantity: Yup.number().min(0.5, "Minimum 0.5 L"),
+    userId: Yup.string().required("UserId is required"),
+    addressId: Yup.string().required("AddressId is required"),
+    fullAddress: Yup.string().required("Full address is required"),
+    dailyQty: Yup.number().min(0.5, "Minimum 0.5 L"),
+    ratePerLiter: Yup.number().min(0, "Rate must be >= 0"),
 });
+
 
 /* =======================
    COMPONENT
@@ -44,21 +44,26 @@ const CustomerFormModal = ({
 
     const formik = useFormik({
         initialValues: {
-            name: isEdit?.name || "",
-            mobile: isEdit?.mobile || "",
-            address: isEdit?.address || "",
-            quantity: isEdit?.quantity || "",
+            userId: isEdit?.userId?._id || "",
+            addressId: isEdit?.addressId || "",
+            fullAddress: isEdit?.fullAddress || "",
+            dailyQty: String(isEdit?.dailyQty || "1"),
+            ratePerLiter: String(isEdit?.ratePerLiter || ""),
         },
+
         validationSchema: customerValidation,
         enableReinitialize: true,
         onSubmit: (values) => {
             onSubmit({
-                ...values,
-                milkType,
-                deliveryTime,
-                paymentCycle,
+                userId: values.userId,
+                addressId: values.addressId,
+                fullAddress: values.fullAddress,
+                milkType: milkType.toLowerCase(),
+                dailyQty: Number(values.dailyQty),
+                ratePerLiter: Number(values.ratePerLiter),
             });
         },
+
     });
 
     return (

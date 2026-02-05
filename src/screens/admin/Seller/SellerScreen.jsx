@@ -19,11 +19,13 @@ import SellerFormModal from "./SellerFormModal";
    INNER LIST (USES CONTEXT)
 ========================= */
 const SellerList = () => {
-    const { seller = [],
+    const {
+        seller = [],
         loading,
         fetchSeller,
-        handleSubmitVendor,
-        deleteVendor, } = useContext(SellerContext);
+        handleSubmitSeller,
+        deleteVendor,
+    } = useContext(SellerContext);
     const [search, setSearch] = useState("");
     const [formOpen, setFormOpen] = useState(false);
 
@@ -167,11 +169,17 @@ const SellerList = () => {
             <SellerFormModal
                 visible={formOpen}
                 onClose={() => setFormOpen(false)}
-                onSubmit={(data) => {
-                    console.log("SELLER DATA:", data);
+                onSubmit={async (data) => {
+                    await handleSubmitSeller({
+                        data,
+                        isEdit: false,
+                        sellerId: null,
+                    });
+
                     setFormOpen(false);
                 }}
             />
+
         </SafeAreaView>
     );
 };

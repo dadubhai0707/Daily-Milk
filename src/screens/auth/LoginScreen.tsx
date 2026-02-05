@@ -13,14 +13,12 @@ import { useFormik } from "formik";
 import AuthService from "../../services/authService/auth.service";
 import { setAuthData } from "../../utils/storage";
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, onLoginSuccess }) {
   const [mode, setMode] = useState("password"); // "password" | "otp"
   const [isLoading, setIsloading] = useState(false)
   const LoginForm = useFormik({
-    initialValues: {
-      mobile: "",
-      password: ""
-    },
+    initialValues: { mobile: "", password: "" },
+
     onSubmit: async (values, { resetForm }) => {
       try {
         setIsloading(true);
@@ -31,7 +29,6 @@ export default function LoginScreen({ navigation }) {
           Toast.show({
             type: "error",
             text1: "Login Failed",
-            text2: res
           });
           return;
         }
@@ -39,31 +36,35 @@ export default function LoginScreen({ navigation }) {
         await setAuthData({
           accessToken: res.accessToken,
           refreshToken: res.refreshToken,
-          user: res.data.user
+          user: res.data.user,
         });
 
         Toast.show({
           type: "success",
-          text1: "Login Successful 🎉"
+          text1: "Login Successful 🎉",
         });
 
         resetForm();
 
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "User" }]
-        });
+        // ✅ बस ये call करो
+        onLoginSuccess();
+
+        // ❌ navigation.reset हटाओ
+        // navigation.reset({
+        //   index: 0,
+        //   routes: [{ name: "User" }],
+        // });
 
       } catch (error) {
         Toast.show({
           type: "error",
-          text1: "Network error"
+          text1: "Network error",
         });
       } finally {
         setIsloading(false);
       }
-    }
-  });
+    },
+  })
   return (
     <ScrollView
       contentContainerStyle={styles.container}

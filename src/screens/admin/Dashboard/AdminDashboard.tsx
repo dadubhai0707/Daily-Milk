@@ -1,22 +1,79 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Toast from "react-native-toast-message";
 
 import StatCard from "./components/StatCard";
 import MenuCard from "./components/MenuCard";
 import FabButton from "./components/FabButton";
 import styles from "./AdminDashboard.styles";
 
+import AuthService from "../../../services/authService/auth.service";
+import { clearAuthData, getAuthData } from "../../../utils/storage";
+
 export default function AdminDashboard() {
   const navigation = useNavigation();
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
+  const handleLogout = async () => {
+    if (logoutLoading) return;
+
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setLogoutLoading(true);
+
+              const auth = await getAuthData();
+              const refreshToken = auth?.refreshToken;
+
+              // 1) backend logout
+              if (refreshToken) {
+                await AuthService.Logout(refreshToken);
+              }
+
+              // 2) clear local storage
+              await clearAuthData();
+
+              Toast.show({
+                type: "success",
+                text1: "Logged out ✅",
+              });
+
+              // 3) reset navigation to Login
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
+              });
+            } catch (err) {
+              Toast.show({
+                type: "error",
+                text1: "Logout failed",
+                text2: err?.message || "Try again",
+              });
+            } finally {
+              setLogoutLoading(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -26,7 +83,7 @@ export default function AdminDashboard() {
           <View style={styles.avatarWrap}>
             <Image
               source={{
-                uri: "https://i.pravatar.cc/100"
+                uri: "https://i.pravatar.cc/100",
               }}
               style={styles.avatar}
             />
@@ -34,40 +91,37 @@ export default function AdminDashboard() {
           </View>
 
           <View>
-            <Text style={{
-              fontSize: 11,
-              fontWeight: "800",
-              color: "#9AA3A3",
-              letterSpacing: 1,
-              marginBottom: 2
-            }}>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: "800",
+                color: "#9AA3A3",
+                letterSpacing: 1,
+                marginBottom: 2,
+              }}
+            >
               GOOD MORNING 👋
             </Text>
 
-            <Text style={{
-              fontSize: 18,
-              fontWeight: "800",
-              color: "#121717"
-            }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "800",
+                color: "#121717",
+              }}
+            >
               Alex Rivera
             </Text>
-
           </View>
         </View>
 
-        <TouchableOpacity style={styles.notifyBtn}>
+        {/* LOGOUT BUTTON (BELL ICON) */}
+        <TouchableOpacity style={styles.notifyBtn} onPress={handleLogout}>
           <View style={{ position: "relative" }}>
-            <Icon name="bell-outline" size={22} color="#121717" />
-            <View
-              style={{
-                position: "absolute",
-                top: 2,
-                right: 2,
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: "red"
-              }}
+            <Icon
+              name={logoutLoading ? "loading" : "logout"}
+              size={22}
+              color="#121717"
             />
           </View>
         </TouchableOpacity>
@@ -116,7 +170,6 @@ export default function AdminDashboard() {
             iconBg="#FFF1E6"
             highlight
           />
-
         </View>
 
         {/* MANAGE BUSINESS */}
@@ -126,30 +179,43 @@ export default function AdminDashboard() {
         </View>
 
         <View style={styles.menuGrid}>
-          <MenuCard icon="office-building" label="Vendors" color="#EAF2FF"
-            onPress={() => navigation.navigate("VendorListScreen")} />
+          <MenuCard
+            icon="office-building"
+            label="Vendors"
+            color="#EAF2FF"
+            onPress={() => navigation.navigate("VendorListScreen")}
+          />
           <MenuCard icon="water" label="Milk" color="#E9FBF9" />
-          <MenuCard icon="map-marker-outline" label="Address" color="#FFECEC"
-            onPress={() => navigation.navigate("AddressScreen")} />
-          <MenuCard icon="storefront-outline" label="Seller" color="#FFF4E8"
-            onPress={() => navigation.navigate("SellerScreen")} />
-          <MenuCard icon="account-group-outline" label="Customer" color="#EAF7EE"
-            onPress={() => navigation.navigate("CustomerScreen")} />
+          <MenuCard
+            icon="map-marker-outline"
+            label="Address"
+            color="#FFECEC"
+            onPress={() => navigation.navigate("AddressScreen")}
+          />
+          <MenuCard
+            icon="storefront-outline"
+            label="Seller"
+            color="#FFF4E8"
+            onPress={() => navigation.navigate("SellerScreen")}
+          />
+          <MenuCard
+            icon="account-group-outline"
+            label="Customer"
+            color="#EAF7EE"
+            onPress={() => navigation.navigate("CustomerScreen")}
+          />
           <MenuCard icon="check-circle-outline" label="Assign" color="#EEF0FF" />
           <MenuCard icon="wallet-outline" label="Payment" color="#F1ECFF" />
           <MenuCard icon="chart-bar" label="Reports" color="#FFF1E6" />
           <MenuCard icon="tune" label="Settings" color="#F2F4F7" />
-
         </View>
       </ScrollView>
+
       {/* FAB */}
       <FabButton
         title="Assign Milk"
         onPress={() => navigation.navigate("AssignMilk")}
       />
-
-
-      {/* BOTTOM TAB */}
     </View>
   );
 }

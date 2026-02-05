@@ -17,6 +17,16 @@ class authService {
             return error.response?.data?.message || "Login failed"
         }
     }
+    async Logout(refreshToken) {
+        try {
+            const res = await api.post("/auth/logout", {
+                refreshToken,
+            });
+            return res.data;
+        } catch (error) {
+            throw error.response?.data || { message: "Logout failed" };
+        }
+    }
 }
 const AuthService = new authService();
 export default AuthService;

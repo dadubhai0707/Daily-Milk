@@ -14,7 +14,7 @@ import VendorProvider from "../../../context/store/vendore/vendore.provider";
 import VendorContext from "../../../context/store/vendore";
 import FabButton from "../Dashboard/components/FabButton";
 
-const VendorListContent = () => {
+const VendorListContent = ({ navigation }) => {
   const {
     vendors,
     fetchVendors,
@@ -33,7 +33,11 @@ const VendorListContent = () => {
 
 
   const renderVendor = ({ item }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate("VendorPurchaseDetail", { vendor: item })}
+    >
       <View style={styles.cardTop}>
         <View>
           <Text style={styles.name}>{item.name}</Text>
@@ -109,10 +113,10 @@ const VendorListContent = () => {
 
 
 
-export default function VendorListScreen() {
+export default function VendorListScreen({ navigation }) {
   return (
     <VendorProvider>
-      <VendorListContent />
+      <VendorListContent  navigation={navigation} />
     </VendorProvider>
   );
 }

@@ -21,7 +21,6 @@ class customerService {
 
   async editCustomer(id, data) {
     try {
-      // ✅ FIX
       const res = await api.put(`/store/customer/${id}`, data);
       return res.data;
     } catch (error) {
@@ -31,7 +30,6 @@ class customerService {
 
   async deleteCustomer(id) {
     try {
-      // ✅ FIX
       const res = await api.delete(`/store/customer/${id}`);
       return res.data;
     } catch (error) {

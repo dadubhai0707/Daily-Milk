@@ -7,9 +7,6 @@ const CustomerProvider = ({ children }) => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* =======================
-      FETCH CUSTOMERS
-  ======================= */
   const fetchCustomer = useCallback(async () => {
     try {
       setLoading(true);
@@ -25,9 +22,6 @@ const CustomerProvider = ({ children }) => {
     }
   }, []);
 
-  /* =======================
-      ADD / UPDATE CUSTOMER
-  ======================= */
   const handleSubmitCustomer = async ({ data, isEdit, customerId }) => {
     try {
       if (isEdit && customerId) {
@@ -49,9 +43,6 @@ const CustomerProvider = ({ children }) => {
     }
   };
 
-  /* =======================
-      DELETE CUSTOMER
-  ======================= */
   const deleteCustomer = async (customerId) => {
     try {
       await CustomerService.deleteCustomer(customerId);

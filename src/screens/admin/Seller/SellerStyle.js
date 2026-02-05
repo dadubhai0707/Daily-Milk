@@ -61,6 +61,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 12,
         height: 52,
         marginBottom: 16,
+        marginTop: 16,
     },
 
     searchInput: {

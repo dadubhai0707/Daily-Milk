@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,25 +8,29 @@ import {
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { styles } from "./customerStyle";
 import CustomerFormModal from "./CustomeFormModal";
 import CustomerProvider from "../../../context/store/customer/customer.provider";
 import CustomerContext from "../../../context/store/customer";
 import FabButton from "../Dashboard/components/FabButton";
+import AddressProvider from "../../../context/store/address/address.provider";
 
 const CustomerList = () => {
-  const { customers = [], handleSubmitCustomer, deleteCustomer } =
+  const { customers = [], loading, fetchCustomer, handleSubmitCustomer, deleteCustomer } =
     useContext(CustomerContext);
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [edit, setEdit] = useState(null);
 
-  const filtered = customers.filter((c) =>
-    `${c?.userId?.name || ""} ${c?.userId?.mobile || ""} ${c?.fullAddress || ""}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    return customers.filter((c) =>
+      `${c?.userId?.name || ""} ${c?.userId?.mobile || ""} ${c?.fullAddress || ""}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [customers, search]);
 
   const renderItem = ({ item }) => {
     const name = item?.userId?.name || "Unknown";
@@ -62,7 +66,7 @@ const CustomerList = () => {
         <View style={styles.addressRow}>
           <Icon name="location-outline" size={14} color="#1fadad" />
           <Text style={styles.address} numberOfLines={1}>
-            {item.fullAddress}
+            {item?.fullAddress || "-"}
           </Text>
 
           <TouchableOpacity onPress={() => deleteCustomer(item._id)}>
@@ -73,21 +77,22 @@ const CustomerList = () => {
     );
   };
 
+  const NoCustomer = () => (
+    <View style={{ paddingVertical: 40, alignItems: "center" }}>
+      <Text style={{ fontSize: 16, fontWeight: "700", color: "#64748b" }}>
+        No Customer Found
+      </Text>
+
+      <TouchableOpacity onPress={fetchCustomer} style={{ marginTop: 10 }}>
+        <Text style={{ color: "#1fadad", fontWeight: "800" }}>Reload</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Customers</Text>
 
-        <View style={styles.headerIcons}>
-          <TouchableOpacity>
-            <Icon name="filter-outline" size={22} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Icon name="person-circle-outline" size={26} color="#1fadad" />
-          </TouchableOpacity>
-        </View>
-      </View>
 
       {/* SEARCH */}
       <View style={styles.searchBox}>
@@ -108,6 +113,9 @@ const CustomerList = () => {
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 140 }}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={!loading ? <NoCustomer /> : null}
+        refreshing={loading}
+        onRefresh={fetchCustomer}
       />
 
       {/* FAB */}
@@ -146,8 +154,10 @@ const CustomerList = () => {
 
 export default function CustomerScreen() {
   return (
-    <CustomerProvider>
-      <CustomerList />
-    </CustomerProvider>
+    <AddressProvider>
+      <CustomerProvider>
+        <CustomerList />
+      </CustomerProvider>
+    </AddressProvider>
   );
 }

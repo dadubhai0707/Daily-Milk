@@ -109,18 +109,7 @@ const SellerList = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.storeIcon}>
-            <Icon name="storefront" size={20} color="#12a19c" />
-          </View>
-          <Text style={styles.headerTitle}>Sellers</Text>
-        </View>
-
-        <TouchableOpacity style={styles.menuBtn} onPress={fetchSeller}>
-          <Icon name="reload" size={18} />
-        </TouchableOpacity>
-      </View>
+  
 
       {/* SEARCH */}
       <View style={styles.searchBox}>

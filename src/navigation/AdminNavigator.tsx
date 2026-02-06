@@ -13,8 +13,6 @@ import VendorPurchaseDetailWrapper from "../screens/admin/Vendor/VendorPurchaseD
 import SellerProfileScreen from "../screens/admin/Seller/SellerProfileScreen";
 
 
-
-
 export default function AdminNavigator() {
   return (
     <Stack.Navigator>

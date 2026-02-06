@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,10 @@ import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Toast from "react-native-toast-message";
 
+
+import SellerProfileContext from "../../../context/seller/profile";
+import SellerProfileProvider from "../../../context/seller/profile/profile.provider";
+
 import StatCard from "./components/StatCard";
 import MenuCard from "./components/MenuCard";
 import FabButton from "./components/FabButton";
@@ -19,60 +23,61 @@ import styles from "./SellerDashboard.styles";
 import AuthService from "../../../services/authService/auth.service";
 import { clearAuthData, getAuthData } from "../../../utils/storage";
 
-export default function SellerDashboard() {
+function SellerDashboardScreen() {
   const navigation = useNavigation();
   const [logoutLoading, setLogoutLoading] = useState(false);
+
+  // ✅ PROFILE CONTEXT
+  const { profile, loading, fetchSellerProfile } =
+    useContext(SellerProfileContext);
+
+  // ✅ Data
+  const user = profile?.user;
+  const todaySummary = profile?.todaySummary;
+
+  const totalAssign = todaySummary?.totalAssign || 0;
+  const sold = todaySummary?.sold || 0;
+  const remaining = todaySummary?.remaining || 0;
+
+  const sellerName = user?.name || "Seller";
+  const profileImage =
+    user?.profileImage && user?.profileImage !== ""
+      ? user.profileImage
+      : "https://i.pravatar.cc/100";
 
   const handleLogout = async () => {
     if (logoutLoading) return;
 
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLogoutLoading(true);
+    try {
+      setLogoutLoading(true);
 
-              const auth = await getAuthData();
-              const refreshToken = auth?.refreshToken;
+      const auth = await getAuthData();
+      const refreshToken = auth?.refreshToken;
 
-              // 1) backend logout
-              if (refreshToken) {
-                await AuthService.Logout(refreshToken);
-              }
+      if (refreshToken) {
+        await AuthService.Logout(refreshToken);
+      }
 
-              // 2) clear local storage
-              await clearAuthData();
+      await clearAuthData();
 
-              Toast.show({
-                type: "success",
-                text1: "Logged out ✅",
-              });
+      Toast.show({
+        type: "success",
+        text1: "Logged out ✅",
+      });
 
-              // 3) reset navigation to Login
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
-              });
-            } catch (err) {
-              Toast.show({
-                type: "error",
-                text1: "Logout failed",
-                text2: err?.message || "Try again",
-              });
-            } finally {
-              setLogoutLoading(false);
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      });
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: "Logout failed",
+        text2: err?.message || "Try again",
+      });
+    } finally {
+      setLogoutLoading(false);
+    }
   };
 
   return (
@@ -83,7 +88,7 @@ export default function SellerDashboard() {
           <View style={styles.avatarWrap}>
             <Image
               source={{
-                uri: "https://i.pravatar.cc/100",
+                uri: profileImage,
               }}
               style={styles.avatar}
             />
@@ -110,35 +115,47 @@ export default function SellerDashboard() {
                 color: "#121717",
               }}
             >
-              Seller
+              {sellerName}
+            </Text>
+
+            {/* ✅ Store name show */}
+            <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
+              {profile?.store?.shopName || ""}
             </Text>
           </View>
         </View>
 
-        {/* LOGOUT BUTTON (BELL ICON) */}
-        <TouchableOpacity style={styles.notifyBtn} onPress={handleLogout}>
+        {/* LOGOUT */}
+        <TouchableOpacity
+          style={styles.notifyBtn}
+          onPress={handleLogout}
+          activeOpacity={0.7}
+          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+        >
           <View style={{ position: "relative" }}>
             <Icon
-              name={logoutLoading ? "loading" : "logout"}
+              name={logoutLoading ? "progress-clock" : "logout"}
               size={22}
               color="#121717"
             />
           </View>
         </TouchableOpacity>
-      </View>
+
+
+      </View >
 
       {/* BODY */}
-      <ScrollView
+      < ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
         {/* STATS */}
-        <View style={styles.statsGrid}>
+        <View View style={styles.statsGrid} >
           <StatCard
             style={{ width: "100%" }}
             label="TOTAL"
             title="To Day Assign"
-            value="1200"
+            value={String(totalAssign)}
             unit="L"
             icon="lightning-bolt"
             iconBg="#E9FBF9"
@@ -147,7 +164,7 @@ export default function SellerDashboard() {
           <StatCard
             label="BUY"
             title="Today's Sell"
-            value="450"
+            value={String(sold)}
             unit="L"
             icon="cart-outline"
             iconBg="#EAF2FF"
@@ -156,7 +173,7 @@ export default function SellerDashboard() {
           <StatCard
             label="ALERT"
             title="Remaining"
-            value="400"
+            value={String(remaining)}
             unit="L"
             icon="timer-sand"
             iconBg="#FFF1E6"
@@ -165,10 +182,10 @@ export default function SellerDashboard() {
         </View>
 
         {/* MANAGE BUSINESS */}
-        <View style={styles.manageHeader}>
+        <View View style={styles.manageHeader} >
           <Text style={styles.manageTitle}>Manage Business</Text>
           <Text style={styles.viewAll}>View All</Text>
-        </View>
+        </View >
 
         <View style={styles.menuGrid}>
           <MenuCard
@@ -212,14 +229,22 @@ export default function SellerDashboard() {
             onPress={() => navigation.navigate("SellerSettings")}
           />
         </View>
-
-      </ScrollView>
+      </ScrollView >
 
       {/* FAB */}
-      <FabButton
+      < FabButton
         title="Assign Milk"
-        onPress={() => navigation.navigate("SellerAssignHistory")}
+        onPress={() => navigation.navigate("SellerAssignHistory")
+        }
       />
-    </View>
+    </View >
+  );
+}
+
+export default function SellerDashboard() {
+  return (
+    <SellerProfileProvider>
+      <SellerDashboardScreen />
+    </SellerProfileProvider>
   );
 }

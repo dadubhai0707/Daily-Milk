@@ -10,6 +10,8 @@ const Stack = createNativeStackNavigator();
 import AdminBottomTabs from "../screens/admin/Dashboard/components/BottomTabBar";
 import NewPurchaseScreen from "../screens/admin/Vendor/PurchaseHistory/NewPurchaseScreen";
 import VendorPurchaseDetailWrapper from "../screens/admin/Vendor/VendorPurchaseDetailScreen";
+import SellerProfileScreen from "../screens/admin/Seller/SellerProfileScreen";
+
 
 
 
@@ -72,6 +74,14 @@ export default function AdminNavigator() {
         options={{
           title: "Purchase Milk",
         }} />
+
+      <Stack.Screen
+        name="SellerProfile"
+        component={SellerProfileScreen}
+        options={{
+          title: "Seller Profile",
+        }}
+      />
     </Stack.Navigator>
   );
 }

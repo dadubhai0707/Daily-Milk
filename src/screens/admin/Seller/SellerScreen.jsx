@@ -14,7 +14,7 @@ import SellerContext from "../../../context/store/seller";
 import FabButton from "../Dashboard/components/FabButton";
 import SellerFormModal from "./SellerFormModal";
 
-const SellerList = () => {
+const SellerList = ({ navigation }) => {
   const { seller = [], loading, handleSubmitSeller, fetchSeller } =
     useContext(SellerContext);
 
@@ -36,61 +36,64 @@ const SellerList = () => {
     const isActive = item?.isActive === true;
 
     return (
-      <View style={[styles.card, !isActive && styles.inactiveCard]}>
-        {/* AVATAR */}
-        <View style={styles.avatarWrap}>
-          <View style={styles.vendorAvatar}>
-            <Text style={styles.vendorAvatarText}>{name.charAt(0)}</Text>
-          </View>
-
-          {/* ✅ GREEN if active, RED if inactive */}
-          <View
-            style={[
-              styles.statusDot,
-              isActive ? styles.greenDot : styles.redDot,
-            ]}
-          />
-        </View>
-
-        {/* CONTENT */}
-        <View style={{ flex: 1 }}>
-          <View style={styles.rowBetween}>
-            <View>
-              <Text style={[styles.name, !isActive && styles.inactiveText]}>
-                {name}
-              </Text>
-
-              <Text style={styles.meta}>
-                Role: {item?.userId?.role || "-"}
-              </Text>
+      <TouchableOpacity activeOpacity={0.9}
+        onPress={() => navigation.navigate("SellerProfile", { seller: item })}>
+        <View style={[styles.card, !isActive && styles.inactiveCard]}>
+          {/* AVATAR */}
+          <View style={styles.avatarWrap}>
+            <View style={styles.vendorAvatar}>
+              <Text style={styles.vendorAvatarText}>{name.charAt(0)}</Text>
             </View>
 
-            {/* ✅ badge green/red */}
+            {/* ✅ GREEN if active, RED if inactive */}
             <View
               style={[
-                styles.badge,
-                isActive ? styles.activeBadge : styles.inactiveBadge,
+                styles.statusDot,
+                isActive ? styles.greenDot : styles.redDot,
               ]}
-            >
-              <Text
-                style={[
-                  styles.badgeText,
-                  isActive ? styles.activeBadgeText : styles.inactiveBadgeText,
-                ]}
-              >
-                {isActive ? "ACTIVE" : "INACTIVE"}
-              </Text>
-            </View>
+            />
           </View>
 
-          <View style={styles.footerRow}>
-            <View style={styles.phoneRow}>
-              <Icon name="call-outline" size={14} color="#6b7280" />
-              <Text style={styles.phone}>{phone}</Text>
+          {/* CONTENT */}
+          <View style={{ flex: 1 }}>
+            <View style={styles.rowBetween}>
+              <View>
+                <Text style={[styles.name, !isActive && styles.inactiveText]}>
+                  {name}
+                </Text>
+
+                <Text style={styles.meta}>
+                  Role: {item?.userId?.role || "-"}
+                </Text>
+              </View>
+
+              {/* ✅ badge green/red */}
+              <View
+                style={[
+                  styles.badge,
+                  isActive ? styles.activeBadge : styles.inactiveBadge,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.badgeText,
+                    isActive ? styles.activeBadgeText : styles.inactiveBadgeText,
+                  ]}
+                >
+                  {isActive ? "ACTIVE" : "INACTIVE"}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.footerRow}>
+              <View style={styles.phoneRow}>
+                <Icon name="call-outline" size={14} color="#6b7280" />
+                <Text style={styles.phone}>{phone}</Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -109,7 +112,7 @@ const SellerList = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER */}
-  
+
 
       {/* SEARCH */}
       <View style={styles.searchBox}>
@@ -154,10 +157,10 @@ const SellerList = () => {
   );
 };
 
-export default function SellerScreen() {
+export default function SellerScreen({ navigation }) {
   return (
     <SellerProvider>
-      <SellerList />
+      <SellerList navigation={navigation} />
     </SellerProvider>
   );
 }

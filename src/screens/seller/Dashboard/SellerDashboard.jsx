@@ -192,13 +192,13 @@ function SellerDashboardScreen() {
             icon="map-marker-outline"
             label="Area"
             color="#EAF7EE"
-            onPress={() => navigation.navigate("CustomerScreen")}
+            onPress={() => navigation.navigate("SellerArea")}
           />
           <MenuCard
             icon="account-group-outline"
-            label="Customers"
+            label="MilkDelivery"
             color="#EAF7EE"
-            onPress={() => navigation.navigate("CustomerScreen")}
+            onPress={() => navigation.navigate("SellerMilkDelivery")}
           />
 
           <MenuCard

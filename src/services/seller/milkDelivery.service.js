@@ -12,6 +12,14 @@ class SellerMilkDeliveryService {
       );
     }
   }
+  async listCustomers() {
+    try {
+      const res = await api.get("/seller/milk-delivered/customer");
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Failed to fetch customers" };
+    }
+  }
 }
 
 const sellerMilkDeliveryService = new SellerMilkDeliveryService();

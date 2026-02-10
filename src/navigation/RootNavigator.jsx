@@ -1,13 +1,18 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import AuthNavigator from "./AuthNavigator";
+
 import UserNavigation from "./UserNavigation";
+import SplashScreen from "../screens/public/Splash/SplashScreen";
+import PublicBottomBar from "../screens/public/PublicBottomBar";
+import AuthNavigator from "./AuthNavigator";
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
+  const [isSplashDone, setIsSplashDone] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
@@ -19,36 +24,57 @@ export default function RootNavigator() {
       if (isAuth === "true" && userData) {
         const user = JSON.parse(userData);
         setIsAuthenticated(true);
-        setUserRole(user.role);
+        setUserRole(user?.role || null);
       } else {
         setIsAuthenticated(false);
         setUserRole(null);
       }
     } catch (e) {
-      console.error(e);
+      setIsAuthenticated(false);
+      setUserRole(null);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    checkAuth();
+    const timer = setTimeout(() => {
+      setIsSplashDone(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  if (loading) return null;
+  useEffect(() => {
+    if (isSplashDone) checkAuth();
+  }, [isSplashDone]);
 
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!isAuthenticated ? (
-        // Hum checkAuth function pass kar rahe hain login screen ke liye
+  if (!isSplashDone) return <SplashScreen />;
+  if (loading) return null;
+return (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    {!isAuthenticated ? (
+      <>
+        <Stack.Screen name="Public" component={PublicBottomBar} />
         <Stack.Screen name="Auth">
-          {(props) => <AuthNavigator {...props} onLoginSuccess={checkAuth} />}
+          {(props) => (
+            <AuthNavigator
+              {...props}
+              onLoginSuccess={() => {
+                checkAuth();
+              }}
+            />
+          )}
         </Stack.Screen>
-      ) : (
+      </>
+    ) : (
+      <>
         <Stack.Screen name="User">
           {(props) => <UserNavigation {...props} role={userRole} />}
         </Stack.Screen>
-      )}
-    </Stack.Navigator>
-  );
+      </>
+    )}
+  </Stack.Navigator>
+);
+
 }

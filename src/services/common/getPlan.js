@@ -1,19 +1,20 @@
-import axios from "axios";
 import api from "../api";
 
 class PlanService {
+  // ✅ Get All Active Plans
   async getAllPlans() {
     try {
-      const res = await axios.get("/subscription-plans");
+      const res = await api.get("/super-admin/subscription");
       return res.data;
     } catch (error) {
       throw error.response?.data || { message: "Failed to fetch plans" };
     }
   }
 
+  // ✅ Get Single Plan By ID (optional)
   async getPlanById(planId) {
     try {
-      const res = await axios.get(`/subscription-plans/${planId}`);
+      const res = await api.get(`/super-admin/subscription/${planId}`);
       return res.data;
     } catch (error) {
       throw error.response?.data || { message: "Failed to fetch plan" };

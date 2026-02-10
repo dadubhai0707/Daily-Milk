@@ -16,6 +16,7 @@ import { setAuthData } from "../../utils/storage";
 export default function LoginScreen({ navigation, onLoginSuccess }) {
   const [mode, setMode] = useState("password"); // "password" | "otp"
   const [isLoading, setIsloading] = useState(false)
+  // navigation.navigate("SellerMilkDelivery")
   const LoginForm = useFormik({
     initialValues: { mobile: "", password: "" },
 
@@ -72,7 +73,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
 
@@ -153,7 +154,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
       {/* Footer */}
       <Text style={styles.footerText}>
         Don’t have an account?
-        <Text style={styles.signup}> Sign Up</Text>
+        <Text style={styles.signup} onPress={() => navigation.navigate("Register")}> Sign Up</Text>
       </Text>
 
       {/* Role indicators */}

@@ -4,7 +4,7 @@ import CustomerDashboard from "../screens/customer/dashboard/CustomerDashboard";
 import CustomerBottomBar from "../screens/customer/dashboard/CustomerBottomBar";
 const Stack = createNativeStackNavigator();
 
-export default function CustomerStack() {
+export default function PublicStack() {
     return (
         <Stack.Navigator>
             <Stack.Screen

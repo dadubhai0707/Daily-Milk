@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Toast from "react-native-toast-message";
@@ -16,57 +17,85 @@ import AuthService from "../../../services/authService/auth.service";
 import { clearAuthData, getAuthData } from "../../../utils/storage";
 import { useNavigation } from "@react-navigation/native";
 
-export default function CustomerDashboard() {
+// ✅ Providers
+import CustomerProfileProvider from "../../../context/customere/profile/customerProfile.provider";
+import CustomerHistoryProvider from "../../../context/customere/history/customerHistory.provider";
+
+// ✅ Context
+import CustomerProfileContext from "../../../context/customere/profile";
+import CustomerHistoryContext from "../../../context/customere/history";
+
+/* ======================================================
+   UI COMPONENT (Inside Providers)
+====================================================== */
+function CustomerDashboardUI() {
   const navigation = useNavigation();
   const [logoutLoading, setLogoutLoading] = useState(false);
 
-  const profile = useMemo(() => {
-    return {
-      user: {
-        name: "Ramesh Kumar",
-        profileImage: "",
-      },
-      store: {
-        shopName: "Shree Milk Center",
-      },
-      today: {
-        status: "delivered",
-        milkQty: 1,
-        milkType: "buffalo",
-      },
-      month: {
-        totalMilk: 32,
-        totalAmount: 1600,
-        paymentStatus: "unpaid",
-      },
-      lastPayment: {
-        amount: 500,
-        date: "02 Feb 2026",
-        mode: "upi",
-      },
-      recentHistory: [
-        { date: "06 Feb", status: "delivered", qty: 1 },
-        { date: "05 Feb", status: "delivered", qty: 1 },
-        { date: "04 Feb", status: "skipped", qty: 0 },
-      ],
-    };
-  }, []);
+  const { profile, loading: profileLoading, fetchProfile } = useContext(
+    CustomerProfileContext
+  );
 
-  const user = profile.user;
-  const today = profile.today;
-  const month = profile.month;
+  const { thisMonth, loading: historyLoading, fetchThisMonth } = useContext(
+    CustomerHistoryContext
+  );
+
+  const loading = profileLoading || historyLoading;
+
+  // ✅ Backend response safe mapping
+  const user = profile?.user || {};
+  const customer = profile?.customer || {};
+  const store = customer?.storeID || {};
+  const today = profile?.todayMilk || {};
 
   const profileImage =
     user?.profileImage && user?.profileImage !== ""
       ? user.profileImage
       : "https://i.pravatar.cc/100";
 
+  // ✅ This month summary
+  const month = useMemo(() => {
+    const list = Array.isArray(thisMonth) ? thisMonth : [];
+
+    const totalMilk = list.reduce((sum, d) => sum + Number(d?.milkQty || 0), 0);
+
+    const rate = Number(customer?.ratePerLiter || 0);
+    const totalAmount = totalMilk * rate;
+
+    return {
+      totalMilk,
+      totalAmount,
+      paymentStatus: "unpaid", // 🔥 next API se live karenge
+    };
+  }, [thisMonth, customer?.ratePerLiter]);
+
+  // ✅ Recent 3 records
+  const recentHistory = useMemo(() => {
+    const list = Array.isArray(thisMonth) ? thisMonth : [];
+
+    return list.slice(0, 3).map((d) => ({
+      date: new Date(d.date).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+      }),
+      status: d.status,
+      qty: Number(d.milkQty || 0),
+    }));
+  }, [thisMonth]);
+
+  // ✅ Today status color
   const statusColor =
     today.status === "delivered"
       ? "#16a34a"
       : today.status === "skipped"
-      ? "#f59e0b"
-      : "#ef4444";
+        ? "#f59e0b"
+        : "#ef4444";
+
+  // ✅ Pull refresh
+  const handleRefresh = async () => {
+    await fetchProfile();
+    await fetchThisMonth();
+  };
 
   // ✅ LOGOUT FUNCTION
   const handleLogout = async () => {
@@ -121,6 +150,13 @@ export default function CustomerDashboard() {
     );
   };
 
+  // ✅ fallback (lastPayment) - abhi dummy
+  const lastPayment = {
+    amount: 0,
+    date: "-",
+    mode: "-",
+  };
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -133,11 +169,11 @@ export default function CustomerDashboard() {
           <View>
             <Text style={styles.greeting}>WELCOME 👋</Text>
             <Text style={styles.name}>{user?.name || "Customer"}</Text>
-            <Text style={styles.shop}>{profile?.store?.shopName || ""}</Text>
+            <Text style={styles.shop}>{store?.shopName || ""}</Text>
           </View>
         </View>
 
-        {/* ✅ LOGOUT ICON (bell ki jagah) */}
+        {/* LOGOUT ICON */}
         <TouchableOpacity
           style={styles.notifyBtn}
           onPress={handleLogout}
@@ -156,6 +192,9 @@ export default function CustomerDashboard() {
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+        }
       >
         {/* TODAY CARD */}
         <View style={styles.todayCard}>
@@ -163,18 +202,22 @@ export default function CustomerDashboard() {
             <View>
               <Text style={styles.todayTitle}>Today’s Milk</Text>
               <Text style={styles.todaySub}>
-                {String(today.milkType).toUpperCase()} • {today.milkQty} L
+                {String(today?.milkType || customer?.milkType || "").toUpperCase()}{" "}
+                • {Number(today?.milkQty || 0)} L
               </Text>
             </View>
 
             <View style={[styles.statusPill, { backgroundColor: statusColor }]}>
               <Text style={styles.statusText}>
-                {String(today.status).toUpperCase()}
+                {String(today?.status || "not_delivered").toUpperCase()}
               </Text>
             </View>
           </View>
 
-          <TouchableOpacity style={styles.linkRow}>
+          <TouchableOpacity
+            style={styles.linkRow}
+            onPress={() => navigation.navigate("CustomerHistory")}
+          >
             <Text style={styles.linkText}>View Delivery History</Text>
             <Icon name="chevron-right" size={18} color="#1fadad" />
           </TouchableOpacity>
@@ -220,11 +263,10 @@ export default function CustomerDashboard() {
 
           <View style={styles.paymentBottom}>
             <Text style={styles.lastPayText}>
-              Last Payment: ₹ {profile.lastPayment.amount}
+              Last Payment: ₹ {lastPayment.amount}
             </Text>
             <Text style={styles.lastPayMeta}>
-              {profile.lastPayment.date} •{" "}
-              {profile.lastPayment.mode.toUpperCase()}
+              {lastPayment.date} • {String(lastPayment.mode).toUpperCase()}
             </Text>
           </View>
         </View>
@@ -238,7 +280,10 @@ export default function CustomerDashboard() {
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.invoiceBtn}>
+          <TouchableOpacity
+            style={styles.invoiceBtn}
+            onPress={() => Toast.show({ type: "info", text1: "Coming soon..." })}
+          >
             <Icon name="download" size={18} color="#fff" />
             <Text style={styles.invoiceBtnText}>Download</Text>
           </TouchableOpacity>
@@ -247,30 +292,49 @@ export default function CustomerDashboard() {
         {/* RECENT HISTORY */}
         <Text style={styles.sectionTitle}>Recent (Last 3 Days)</Text>
 
-        {profile.recentHistory.map((h, idx) => {
-          const color =
-            h.status === "delivered"
-              ? "#16a34a"
-              : h.status === "skipped"
-              ? "#f59e0b"
-              : "#ef4444";
+        {recentHistory.length === 0 ? (
+          <Text style={{ color: "#64748b", marginTop: 10 }}>
+            No delivery records found
+          </Text>
+        ) : (
+          recentHistory.map((h, idx) => {
+            const color =
+              h.status === "delivered"
+                ? "#16a34a"
+                : h.status === "skipped"
+                  ? "#f59e0b"
+                  : "#ef4444";
 
-          return (
-            <View key={idx} style={styles.historyRow}>
-              <View style={[styles.dot, { backgroundColor: color }]} />
-              <Text style={styles.historyDate}>{h.date}</Text>
+            return (
+              <View key={idx} style={styles.historyRow}>
+                <View style={[styles.dot, { backgroundColor: color }]} />
+                <Text style={styles.historyDate}>{h.date}</Text>
 
-              <Text style={styles.historyStatus}>
-                {String(h.status).toUpperCase()}
-              </Text>
+                <Text style={styles.historyStatus}>
+                  {String(h.status).toUpperCase()}
+                </Text>
 
-              <Text style={styles.historyQty}>{h.qty} L</Text>
-            </View>
-          );
-        })}
+                <Text style={styles.historyQty}>{h.qty} L</Text>
+              </View>
+            );
+          })
+        )}
 
         <View style={{ height: 120 }} />
       </ScrollView>
     </View>
+  );
+}
+
+/* ======================================================
+   MAIN EXPORT (Providers Wrap)
+====================================================== */
+export default function CustomerDashboard() {
+  return (
+    <CustomerProfileProvider>
+      <CustomerHistoryProvider>
+        <CustomerDashboardUI />
+      </CustomerHistoryProvider>
+    </CustomerProfileProvider>
   );
 }

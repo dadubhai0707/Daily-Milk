@@ -18,62 +18,57 @@ import styles from "./AdminDashboard.styles";
 
 import AuthService from "../../../services/authService/auth.service";
 import { clearAuthData, getAuthData } from "../../../utils/storage";
-
+import { useAuth } from "../../../context/AuthContext"; // ✅ ADD THIS
 export default function AdminDashboard() {
   const navigation = useNavigation();
   const [logoutLoading, setLogoutLoading] = useState(false);
-
+ const { checkAuth } = useAuth();
   const handleLogout = async () => {
     if (logoutLoading) return;
 
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLogoutLoading(true);
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            setLogoutLoading(true);
 
-              const auth = await getAuthData();
-              const refreshToken = auth?.refreshToken;
+            const auth = await getAuthData();
+            const refreshToken = auth?.refreshToken;
 
-              // 1) backend logout
-              if (refreshToken) {
-                await AuthService.Logout(refreshToken);
-              }
-
-              // 2) clear local storage
-              await clearAuthData();
-
-              Toast.show({
-                type: "success",
-                text1: "Logged out ✅",
-              });
-
-              // 3) reset navigation to Login
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
-              });
-            } catch (err) {
-              Toast.show({
-                type: "error",
-                text1: "Logout failed",
-                text2: err?.message || "Try again",
-              });
-            } finally {
-              setLogoutLoading(false);
+            // 1) backend logout
+            if (refreshToken) {
+              await AuthService.Logout(refreshToken);
             }
-          },
+
+            // 2) clear local storage
+            await clearAuthData();
+
+            Toast.show({
+              type: "success",
+              text1: "Logged out ✅",
+            });
+
+            // ✅ 3) ROOT REFRESH (AUTO GO TO LOGIN)
+            checkAuth();
+
+          } catch (err) {
+            Toast.show({
+              type: "error",
+              text1: "Logout failed",
+              text2: err?.message || "Try again",
+            });
+          } finally {
+            setLogoutLoading(false);
+          }
         },
-      ],
-      { cancelable: true }
-    );
+      },
+    ]);
   };
+
+
 
   return (
     <View style={styles.container}>

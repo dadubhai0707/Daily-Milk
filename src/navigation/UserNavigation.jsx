@@ -3,11 +3,10 @@ import SellerStack from "./SellerNavigator";
 import CustomerStack from "./CustomerNavigator";
 import PublicBottomBar from "../screens/public/PublicBottomBar";
 
-export default function UserNavigation({ role }) {
-    if (role === "owner") return <AdminStack />;
-  if (role === "seller") return <SellerStack />;
-  if (role === "customer") return <CustomerStack />;
+export default function UserNavigation({ role, onLogoutSuccess }) {
+  if (role === "owner") return <AdminStack onLogoutSuccess={onLogoutSuccess} />;
+  if (role === "seller") return <SellerStack onLogoutSuccess={onLogoutSuccess} />;
+  if (role === "customer") return <CustomerStack onLogoutSuccess={onLogoutSuccess} />;
 
-  // ✅ role === "user" OR unknown role
   return <PublicBottomBar />;
 }

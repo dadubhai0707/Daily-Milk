@@ -1,10 +1,24 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useContext } from "react";
 import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import styles from "./PublicStoreDetailScreen.style";
 
+import JoinRequestModal from "./JoinRequestModal";
+import ConfirmJoinRequestModal from "./ConfirmJoinRequestModal";
+
+import JoinRequestContext from "../../../context/common/joinRequest";
+
 export default function PublicStoreDetailScreen({ route, navigation }) {
   const store = route?.params?.store;
+
+  const { sendJoinRequest, myRequests, loading, fetchMyRequests } =
+    useContext(JoinRequestContext);
+
+  const [roleRequested, setRoleRequested] = useState(null); // customer | seller
+  const [message, setMessage] = useState("");
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const data = useMemo(() => {
     return {
@@ -20,6 +34,59 @@ export default function PublicStoreDetailScreen({ route, navigation }) {
       id: store?._id || "-",
     };
   }, [store]);
+
+  // ✅ check if already pending for this store
+  const hasPending = useMemo(() => {
+    if (!store?._id) return false;
+
+    return (myRequests || []).some(
+      (r) =>
+        String(r?.storeID?._id) === String(store._id) &&
+        r?.status === "pending"
+    );
+  }, [myRequests, store]);
+
+  const openCustomerModal = () => {
+    setRoleRequested("customer");
+    setMessage("");
+    setFormOpen(true);
+  };
+
+  const openSellerModal = () => {
+    setRoleRequested("seller");
+    setMessage("");
+    setFormOpen(true);
+  };
+
+  const closeAll = () => {
+    setFormOpen(false);
+    setConfirmOpen(false);
+    setMessage("");
+    setRoleRequested(null);
+  };
+
+  const handleNext = () => {
+    setFormOpen(false);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!store?._id || !roleRequested) return;
+
+    const ok = await sendJoinRequest({
+      storeID: store._id,
+      roleRequested,
+      message,
+    });
+
+    if (ok) {
+      await fetchMyRequests();
+      closeAll();
+    } else {
+      // if failed keep confirm open
+      setConfirmOpen(false);
+    }
+  };
 
   if (!store) {
     return (
@@ -119,18 +186,62 @@ export default function PublicStoreDetailScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* ACTION BUTTON */}
-        <View style={{ paddingHorizontal: 16, marginTop: 18 }}>
-          <TouchableOpacity activeOpacity={0.9} style={styles.joinBtn}>
-            <Icon name="account-plus-outline" size={20} color="#fff" />
-            <Text style={styles.joinBtnText}>Request to Join</Text>
+        {/* ACTION BUTTONS */}
+        <View style={{ paddingHorizontal: 16, marginTop: 18, gap: 12 }}>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            style={[
+              styles.joinBtn,
+              hasPending && { backgroundColor: "#94a3b8" },
+            ]}
+            disabled={hasPending || loading}
+            onPress={openCustomerModal}
+          >
+            <Icon name="account-heart-outline" size={20} color="#fff" />
+            <Text style={styles.joinBtnText}>
+              {hasPending ? "Request Pending" : "Request as Customer"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.9}
+            style={[
+              styles.joinBtn,
+              { backgroundColor: "#0f172a" },
+              hasPending && { backgroundColor: "#94a3b8" },
+            ]}
+            disabled={hasPending || loading}
+            onPress={openSellerModal}
+          >
+            <Icon name="bike-fast" size={20} color="#fff" />
+            <Text style={styles.joinBtnText}>
+              {hasPending ? "Request Pending" : "Request as Seller"}
+            </Text>
           </TouchableOpacity>
 
           <Text style={styles.hintText}>
-            You can request to join this store as a customer or seller.
+            Owner will review your request. Once approved, your role will be updated.
           </Text>
         </View>
       </ScrollView>
+
+      {/* MODALS */}
+      <JoinRequestModal
+        visible={formOpen}
+        onClose={closeAll}
+        roleRequested={roleRequested}
+        message={message}
+        setMessage={setMessage}
+        onNext={handleNext}
+      />
+
+      <ConfirmJoinRequestModal
+        visible={confirmOpen}
+        onCancel={closeAll}
+        onConfirm={handleConfirm}
+        roleRequested={roleRequested}
+        loading={loading}
+      />
     </SafeAreaView>
   );
 }

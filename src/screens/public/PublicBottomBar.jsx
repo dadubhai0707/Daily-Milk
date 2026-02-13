@@ -3,9 +3,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import PublicHomeScreen from "./Home/PublicHomeScreen";
-import PublicStoreListScreen from "./Stores/PublicStoreListScreen";
+import PublicStoreStack from "../../navigation/PublicStoreStack";
 import PublicAboutScreen from "./About/PublicAboutScreen";
-import PublicLoginRedirectScreen from "./Login/PublicLoginRedirectScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -29,7 +28,6 @@ export default function PublicBottomBar() {
             Home: "home-variant-outline",
             Store: "storefront-outline",
             About: "information-outline",
-            Login: "login",
           };
 
           return (
@@ -43,7 +41,7 @@ export default function PublicBottomBar() {
       })}
     >
       <Tab.Screen name="Home" component={PublicHomeScreen} />
-      <Tab.Screen name="Store" component={PublicStoreListScreen} />
+      <Tab.Screen name="Store" component={PublicStoreStack} />
       <Tab.Screen name="About" component={PublicAboutScreen} />
     </Tab.Navigator>
   );

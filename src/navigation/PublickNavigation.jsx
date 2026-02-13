@@ -2,6 +2,7 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CustomerDashboard from "../screens/customer/dashboard/CustomerDashboard";
 import CustomerBottomBar from "../screens/customer/dashboard/CustomerBottomBar";
+import PublicStoreDetailScreen from "../screens/public/Stores/PublicStoreDetailScreen";
 const Stack = createNativeStackNavigator();
 
 export default function PublicStack() {
@@ -17,6 +18,11 @@ export default function PublicStack() {
                 component={CustomerDashboard}
                 options={{ headerShown: true, title: "Customer" }}
             />
+            <Stack.Screen
+                name="PublicStoreDetailScreen"
+                component={PublicStoreDetailScreen}
+            />
+
         </Stack.Navigator>
     );
 }

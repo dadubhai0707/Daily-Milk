@@ -9,14 +9,19 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import styles from "./PublicStoreListScreen.style";
+import { useNavigation } from "@react-navigation/native";
 
 import PublicStoreProvider from "../../../context/common/getStoreDetail/publicStore.provider";
 import PublicStoreContext from "../../../context/common/getStoreDetail/index";
 
 const PublicStoreList = () => {
+  const navigation = useNavigation();
+
   const [search, setSearch] = useState("");
 
-  const { stores = [], loading, fetchStores } = useContext(PublicStoreContext);
+  const { stores = [], loading, fetchStores, fetchMoreStores, hasMore } =
+    useContext(PublicStoreContext);
+
 
   // ✅ Filter
   const filtered = useMemo(() => {
@@ -28,6 +33,7 @@ const PublicStoreList = () => {
   }, [stores, search]);
 
   const renderStore = ({ item }) => {
+
     return (
       <TouchableOpacity activeOpacity={0.9} style={styles.card}>
         {/* TOP */}
@@ -103,7 +109,14 @@ const PublicStoreList = () => {
         <View style={styles.footerRow}>
           <Text style={styles.smallHint}>ID: #{String(item._id).slice(-5)}</Text>
 
-          <TouchableOpacity style={styles.viewBtn} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.viewBtn}
+            activeOpacity={0.85}
+            onPress={() =>
+              navigation.navigate("PublicStoreDetailScreen", { store: item })
+            }
+          >
+
             <Text style={styles.viewBtnText}>View Details</Text>
             <Icon name="chevron-right" size={18} color="#fff" />
           </TouchableOpacity>
@@ -166,7 +179,16 @@ const PublicStoreList = () => {
         ListEmptyComponent={!loading ? <Empty /> : null}
         refreshing={loading}
         onRefresh={fetchStores}
+
+        // ✅ Infinite Scroll
+        onEndReached={() => {
+          if (search.length === 0) {
+            fetchMoreStores();
+          }
+        }}
+        onEndReachedThreshold={0.4}
       />
+
     </SafeAreaView>
   );
 };
